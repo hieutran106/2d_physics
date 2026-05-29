@@ -1,0 +1,5 @@
+.idea/
+.DS_Store
+cmake-build-macos-debug/
+cmake-build-ios-debug/
+third_party/
