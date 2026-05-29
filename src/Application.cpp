@@ -1,7 +1,6 @@
 #include "Application.h"
-
 #include "Graphics.h"
-#include <SDL3/SDL.h>
+#include "Physics/Constants.h"
 
 bool Application::IsRunning()
 {
@@ -21,7 +20,7 @@ void Application::Setup()
 ///////////////////////////////////////////////////////////////////////////////
 // Input processing
 ///////////////////////////////////////////////////////////////////////////////
-void Application::Input()
+void Application::ProcessInput()
 {
 	SDL_Event event;
 	while(SDL_PollEvent(&event))
@@ -42,7 +41,7 @@ void Application::Input()
 ///////////////////////////////////////////////////////////////////////////////
 // Update function (called several times per second to update objects)
 ///////////////////////////////////////////////////////////////////////////////
-void Application::Update()
+void Application::Update(float deltaTime)
 {
 	particle->velocity = Vec2(2.0, 0.0);
 	particle->position += particle->velocity;

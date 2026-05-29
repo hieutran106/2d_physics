@@ -12,8 +12,8 @@ public:
 	~Application() = default;
 	bool IsRunning();
 	void Setup();
-	void Input();
-	void Update();
+	void ProcessInput();
+	void Update(float deltaTime);
 	void Render();
 	void Destroy();
 };
