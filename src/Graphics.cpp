@@ -1,4 +1,6 @@
 #include "Graphics.h"
+
+#include "SDL3_gfxPrimitives.h"
 #include "SDLHelper.h"
 #include <iostream>
 
@@ -32,16 +34,15 @@ bool Graphics::OpenWindow()
 	}
 	else
 	{
-		//windowFlags = windowFlags | SDL_WINDOW_RESIZABLE;
 		SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
 		const SDL_DisplayMode * mode = SDL_GetCurrentDisplayMode(primaryDisplay);
-		display.windowWidth = mode->w / 2;
-		display.windowHeight = mode->h / 2;
+		display.windowWidth = 2 * mode->w / 3;
+		display.windowHeight = 2 * mode->h / 3;
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,metal");
 
-	window = SDL_CreateWindow("Skia playground", display.windowWidth, display.windowHeight, windowFlags);
+	window = SDL_CreateWindow("2d physics", display.windowWidth, display.windowHeight, windowFlags);
 
 	if(!window)
 	{
@@ -115,8 +116,8 @@ void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2> & vertices, Uin
 
 void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2> & vertices, Uint32 color)
 {
-	std::vector<short> vx;
-	std::vector<short> vy;
+	std::vector<float> vx;
+	std::vector<float> vy;
 	for(int i = 0; i < vertices.size(); i++)
 	{
 		vx.push_back(static_cast<int>(vertices[i].x));

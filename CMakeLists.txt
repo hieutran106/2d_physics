@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24) # 3.24+ is best for FetchContent
-project(2d_physics LANGUAGES CXX)
+project(2d_physics LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,6 +23,11 @@ function(link_sdl3_xc target_name)
     )
 endfunction()
 
+function(link_sdl3_gfx target_name)
+    set(SDL3_GFX "${CMAKE_SOURCE_DIR}/third_party/SDL3_gfx")
+    target_sources(${target_name} PRIVATE ${SDL3_GFX}/SDL3_gfxPrimitives.c ${SDL3_GFX}/SDL3_rotozoom.c)
+    target_include_directories(${target_name} PRIVATE ${SDL3_GFX})
+endfunction()
 
 function(copy_asset target_name)
     if (IOS)
@@ -58,6 +63,7 @@ endfunction()
 
 get_cpp_sources(2d_physics SOURCES)
 add_executable(2d_physics ${SOURCES})
+link_sdl3_gfx(2d_physics)
 link_sdl3_xc(2d_physics)
 copy_asset(2d_physics)
 
