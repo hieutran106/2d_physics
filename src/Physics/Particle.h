@@ -6,6 +6,8 @@ struct Particle
 	Vec2 position;
 	Vec2 velocity;
 	Vec2 acceleration;
+
+	float radius;
 	float mass;
 
 	Particle(float x, float y, float mass);

@@ -2,7 +2,7 @@
 
 struct Display
 {
-	// Window size
+	// Render size
 	int windowWidth = 0;
 	int windowHeight = 0;
 
@@ -10,8 +10,8 @@ struct Display
 	int fbWidth = 0;
 	int fbHeight = 0;
 
-	int renderWidth = 0;
-	int renderHeight = 0;
+	int nativeWindowWidth = 0;
+	int nativeWindowHeight = 0;
 
 	float density = 0;
 	float scale = 0;

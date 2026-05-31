@@ -6,9 +6,10 @@ const Uint64 MILLISECS_PER_FRAME = 1000 / FPS;
 
 int main(int argc, char * args[])
 {
+	SDL_SetLogPriorities(SDL_LOG_PRIORITY_DEBUG);
 	Application app;
 	app.Setup();
-	Uint64 millisecsPreviousFrame = 0;
+	Uint64 millisecsPreviousFrame = SDL_GetTicks();
 	while(app.IsRunning())
 	{
 		// If we are too fast, waste some time until we reach the MILLISECS_PER_FRAME
@@ -19,6 +20,7 @@ int main(int argc, char * args[])
 		}
 		// delta time
 		double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+		// TODO: cap deta time
 		app.ProcessInput();
 		app.Update(deltaTime);
 		app.Render();

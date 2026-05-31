@@ -18,7 +18,7 @@ int Graphics::Height()
 	return display.windowHeight;
 }
 
-bool Graphics::OpenWindow()
+bool Graphics::InitializeWindow(const char * title, int width, int height)
 {
 	if(!SDL_Init(SDL_INIT_VIDEO))
 	{
@@ -26,29 +26,33 @@ bool Graphics::OpenWindow()
 		return false;
 	}
 	SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	int nativeWindowWidth = 0;
+	int nativeWindowHeight = 0;
 	if(SDLHelper::IsIOS())
 	{
 		windowFlags = windowFlags | SDL_WINDOW_FULLSCREEN;
-		display.windowWidth = 0;
-		display.windowHeight = 0;
 	}
 	else
 	{
 		SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
 		const SDL_DisplayMode * mode = SDL_GetCurrentDisplayMode(primaryDisplay);
-		display.windowWidth = 2 * mode->w / 3;
-		display.windowHeight = 2 * mode->h / 3;
+		SDL_Log("Screen resolution: %d x %d", mode->w, mode->h);
+		// nativeWindowWidth = 2 * mode->w / 3;
+		nativeWindowHeight = 2 * mode->h / 3;
+		// keep aspect ratio
+		nativeWindowWidth = nativeWindowHeight * width / height;
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,metal");
 
-	window = SDL_CreateWindow("2d physics", display.windowWidth, display.windowHeight, windowFlags);
+	window = SDL_CreateWindow(title, nativeWindowWidth, nativeWindowHeight, windowFlags);
 
 	if(!window)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Window");
 		return false;
 	}
+	SDLHelper::LogSDLWindowFlags(window);
 
 	renderer = SDL_CreateRenderer(window, nullptr);
 	if(!renderer)
@@ -56,8 +60,7 @@ bool Graphics::OpenWindow()
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer");
 		return false;
 	}
-	SDLHelper::LogSDLWindowFlags(window);
-	SDLHelper::ConfigureSDLDisplaySize(window, display);
+	display = SDLHelper::ConfigureSDLDisplaySize(window, renderer, width, height);
 	return true;
 }
 
