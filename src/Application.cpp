@@ -17,9 +17,9 @@ void Application::Setup()
 	smallBall->radius = 4;
 	particles.push_back(smallBall);
 
-	Particle * bigBall = new Particle(200, 100, 3.0);
-	bigBall->radius = 12;
-	particles.push_back(bigBall);
+	// Particle * bigBall = new Particle(200, 100, 3.0);
+	// bigBall->radius = 12;
+	// particles.push_back(bigBall);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,6 +38,24 @@ void Application::ProcessInput()
 			case SDL_EVENT_KEY_DOWN:
 				if(event.key.key == SDLK_ESCAPE)
 					running = false;
+				if(event.key.key == SDLK_UP)
+					pushForce.y = -50 * PIXELS_PER_METER;
+				if(event.key.key == SDLK_RIGHT)
+					pushForce.x = 50 * PIXELS_PER_METER;
+				if(event.key.key == SDLK_DOWN)
+					pushForce.y = 50 * PIXELS_PER_METER;
+				if(event.key.key == SDLK_LEFT)
+					pushForce.x = -50 * PIXELS_PER_METER;
+				break;
+			case SDL_EVENT_KEY_UP:
+				if(event.key.key == SDLK_UP)
+					pushForce.y = 0;
+				if(event.key.key == SDLK_RIGHT)
+					pushForce.x = 0;
+				if(event.key.key == SDLK_DOWN)
+					pushForce.y = 0;
+				if(event.key.key == SDLK_LEFT)
+					pushForce.x = 0;
 				break;
 		}
 	}
@@ -48,16 +66,23 @@ void Application::ProcessInput()
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Update(float deltaTime)
 {
+	// Apply a "wind" force to my particles
 	for(auto particle : particles)
 	{
 		Vec2 wind = Vec2(0.2 * PIXELS_PER_METER, 0.0);
 		particle->AddForce(wind);
 	}
 
+	// Apply a "weight" force to my particles
 	for(auto particle : particles)
 	{
 		Vec2 weight = Vec2(0.0, particle->mass * 9.8 * PIXELS_PER_METER);
 		particle->AddForce(weight);
+	}
+	// Apply a "push" force to my particles
+	for(auto particle : particles)
+	{
+		particle->AddForce(pushForce);
 	}
 
 	for(auto particle : particles)
