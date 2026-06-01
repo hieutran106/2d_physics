@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Graphics.h"
 #include "Physics/Constants.h"
+#include "Physics/Force.h"
 
 bool Application::IsRunning()
 {
@@ -20,6 +21,10 @@ void Application::Setup()
 	// Particle * bigBall = new Particle(200, 100, 3.0);
 	// bigBall->radius = 12;
 	// particles.push_back(bigBall);
+	liquid.x = 0;
+	liquid.y = Graphics::Height() / 2;
+	liquid.w = Graphics::Width();
+	liquid.h = Graphics::Height() / 2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,23 +71,23 @@ void Application::ProcessInput()
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Update(float deltaTime)
 {
-	// Apply a "wind" force to my particles
+
 	for(auto particle : particles)
 	{
+		// Apply a "wind" force to my particles
 		Vec2 wind = Vec2(0.2 * PIXELS_PER_METER, 0.0);
 		particle->AddForce(wind);
-	}
-
-	// Apply a "weight" force to my particles
-	for(auto particle : particles)
-	{
+		// Apply a "weight" force to my particles
 		Vec2 weight = Vec2(0.0, particle->mass * 9.8 * PIXELS_PER_METER);
 		particle->AddForce(weight);
-	}
-	// Apply a "push" force to my particles
-	for(auto particle : particles)
-	{
+		// Apply a "push" force to my particles
 		particle->AddForce(pushForce);
+		// Apply a drag force if we are inside the liquid
+		if(particle->position.y > liquid.y)
+		{
+			Vec2 drag = Force::GenerateDragForce(*particle, 0.01);
+			particle->AddForce(drag);
+		}
 	}
 
 	for(auto particle : particles)
@@ -118,7 +123,7 @@ void Application::Update(float deltaTime)
 void Application::Render()
 {
 	Graphics::ClearScreen(0xFF056263);
-	Graphics::DrawRect(1280 - 5, 720 - 5, 5, 5, 0xFFFFFFFF);
+	Graphics::DrawFillRect(liquid.x + liquid.w / 2, liquid.y + liquid.h / 2, liquid.w, liquid.h, 0xFF6E3713);
 	for(auto particle : particles)
 	{
 		Graphics::DrawFillCircle(particle->position.x, particle->position.y, particle->radius, 0xFFFFFFFF);

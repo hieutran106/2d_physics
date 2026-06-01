@@ -1,5 +1,6 @@
 #pragma once
 #include "Physics/Particle.h"
+#include <SDL3/SDL.h>
 #include <vector>
 
 class Application
@@ -8,6 +9,8 @@ private:
 	bool running = false;
 	std::vector<Particle *> particles;
 	Vec2 pushForce;
+
+	SDL_Rect liquid;
 
 public:
 	Application() = default;
