@@ -14,17 +14,14 @@ bool Application::IsRunning()
 void Application::Setup()
 {
 	running = Graphics::InitializeWindow("2d physics", 960, 720);
-	Particle * smallBall = new Particle(50, 100, 1.0);
-	smallBall->radius = 4;
-	particles.push_back(smallBall);
 
-	// Particle * bigBall = new Particle(200, 100, 3.0);
-	// bigBall->radius = 12;
-	// particles.push_back(bigBall);
-	liquid.x = 0;
-	liquid.y = Graphics::Height() / 2;
-	liquid.w = Graphics::Width();
-	liquid.h = Graphics::Height() / 2;
+	Particle * small = new Particle(200, 200, 1.0);
+	small->radius = 6.0;
+	particles.push_back(small);
+
+	Particle * big = new Particle(500, 500, 20.0);
+	big->radius = 20;
+	particles.push_back(big);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,12 +67,6 @@ void Application::ProcessInput()
 					SDL_GetMouseState(&x, &y);
 					mouseCursor.x = x;
 					mouseCursor.y = y;
-
-					// float x, y;
-					// SDL_GetMouseState(&x, &y);
-					// Particle * particle = new Particle(x, y, 1.0);
-					// particle->radius = 5;
-					// particles.push_back(particle);
 				}
 				break;
 			case SDL_EVENT_MOUSE_MOTION:
@@ -109,7 +100,7 @@ void Application::Update(float deltaTime)
 		// Apply a "push" force to my particles
 		particle->AddForce(pushForce);
 
-		Vec2 friction = Force::GenerateFrictionForce(*particle, 10.0 * PIXELS_PER_METER);
+		Vec2 friction = Force::GenerateFrictionForce(*particle, 20);
 		particle->AddForce(friction);
 		// Apply a drag force if we are inside the liquid
 		// if(particle->position.y > liquid.y)
@@ -118,6 +109,10 @@ void Application::Update(float deltaTime)
 		// 	particle->AddForce(drag);
 		// }
 	}
+
+	Vec2 attraction = Force::GenerateGravitationalForce(*particles[0], *particles[1], 1000.0, 5, 100);
+	particles[0]->AddForce(attraction);
+	particles[1]->AddForce(-attraction);
 
 	for(auto particle : particles)
 	{
@@ -159,10 +154,12 @@ void Application::Render()
 			particles[0]->position.x, particles[0]->position.y, mouseCursor.x, mouseCursor.y, 0xFF0000FF
 		);
 	}
-	for(auto particle : particles)
-	{
-		Graphics::DrawFillCircle(particle->position.x, particle->position.y, particle->radius, 0xFFFFFFFF);
-	}
+	Graphics::DrawFillCircle(particles[0]->position.x, particles[0]->position.y, particles[0]->radius, 0xFFAA3300);
+	Graphics::DrawFillCircle(particles[1]->position.x, particles[1]->position.y, particles[1]->radius, 0xFF00FFFF);
+	// for(auto particle : particles)
+	// {
+	// 	Graphics::DrawFillCircle(particle->position.x, particle->position.y, particle->radius, 0xFFFFFFFF);
+	// }
 
 	Graphics::RenderFrame();
 }

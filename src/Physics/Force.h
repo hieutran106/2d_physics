@@ -22,4 +22,17 @@ namespace Force
 		Vec2 frictionDirection = particle.velocity.UnitVector() * -1.0;
 		return frictionDirection * k;
 	}
+	inline Vec2
+	GenerateGravitationalForce(const Particle & a, const Particle & b, float G, float minDistance, float maxDistance)
+	{
+		Vec2 d = b.position - a.position;
+		float distanceSquare = d.MagnitudeSquared();
+
+		distanceSquare = std::clamp(distanceSquare, minDistance, maxDistance);
+
+		Vec2 attractionDirection = d.UnitVector();
+		float attractionMag = G * a.mass * b.mass / distanceSquare;
+		Vec2 attractionForce = attractionDirection * attractionMag;
+		return attractionForce;
+	}
 }
