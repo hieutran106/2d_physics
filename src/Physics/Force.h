@@ -16,4 +16,10 @@ namespace Force
 		}
 		return dragForce;
 	}
+
+	inline Vec2 GenerateFrictionForce(const Particle & particle, float k)
+	{
+		Vec2 frictionDirection = particle.velocity.UnitVector() * -1.0;
+		return frictionDirection * k;
+	}
 }

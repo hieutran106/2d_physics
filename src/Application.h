@@ -12,6 +12,10 @@ private:
 
 	SDL_Rect liquid;
 
+	// Mouse for friction force
+	Vec2 mouseCursor = Vec2(0, 0);
+	bool leftMouseButtonDown = false;
+
 public:
 	Application() = default;
 	~Application() = default;
