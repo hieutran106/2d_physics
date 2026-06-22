@@ -16,9 +16,13 @@ void Application::Setup()
 	running = Graphics::InitializeWindow("2d physics", 960, 720);
 
 	anchor = Vec2(Graphics::Width() / 2.0, 30);
-	Particle * bob = new Particle(Graphics::Width() / 2.0, Graphics::Height() / 2.0, 2.0);
-	bob->radius = 10.0;
-	particles.push_back(bob);
+
+	for(int i = 0; i < 15; i++)
+	{
+		Particle * p = new Particle(anchor.x, anchor.y + i * restLength, 2.0);
+		p->radius = 3;
+		particles.push_back(p);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +36,7 @@ void Application::Update(float deltaTime)
 		particle->AddForce(pushForce);
 
 		// Apply drag force
-		Vec2 drag = Force::GenerateDragForce(*particle, 0.01);
+		Vec2 drag = Force::GenerateDragForce(*particle, 0.002);
 		particle->AddForce(drag);
 
 		// // Apply weight force
@@ -40,9 +44,20 @@ void Application::Update(float deltaTime)
 		particle->AddForce(weight);
 	}
 
-	// Apply spring force to the particle connected to the anchor
+	// Attach the head to the anchor with a spring
 	Vec2 springForce = Force::GenerateSpringForce(*particles[0], anchor, restLength, k);
 	particles[0]->AddForce(springForce);
+
+	// Connect
+	for(int i = 1; i < particles.size(); i++)
+	{
+		int curr = i;
+		int prev = i - 1;
+
+		Vec2 springForce = Force::GenerateSpringForce(*particles[curr], particles[prev]->position, restLength, k);
+		particles[curr]->AddForce(springForce);
+		particles[prev]->AddForce(-springForce);
+	}
 
 	for(auto particle : particles)
 	{
@@ -82,7 +97,11 @@ void Application::Render()
 	if(leftMouseButtonDown)
 	{
 		Graphics::DrawLine(
-			particles[0]->position.x, particles[0]->position.y, mouseCursor.x, mouseCursor.y, 0xFF0000FF
+			particles[particles.size() - 1]->position.x,
+			particles[particles.size() - 1]->position.y,
+			mouseCursor.x,
+			mouseCursor.y,
+			0xFF0000FF
 		);
 	}
 	// Draw spring
@@ -91,7 +110,20 @@ void Application::Render()
 	// Draw anchor
 	Graphics::DrawFillCircle(anchor.x, anchor.y, 5, 0xFF001155);
 	// Draw bob
-	Graphics::DrawFillCircle(particles[0]->position.x, particles[0]->position.y, particles[0]->radius, 0xFFFFFFFF);
+	for(int i = 0; i < particles.size(); i++)
+	{
+		Graphics::DrawFillCircle(particles[i]->position.x, particles[i]->position.y, particles[0]->radius, 0xFFFFFFFF);
+		// Draw spring between particles
+		if(i == 0)
+			continue;
+		Graphics::DrawLine(
+			particles[i - 1]->position.x,
+			particles[i - 1]->position.y,
+			particles[i]->position.x,
+			particles[i]->position.y,
+			0xFF313131
+		);
+	}
 
 	Graphics::RenderFrame();
 }
@@ -149,9 +181,10 @@ void Application::ProcessInput()
 				if(leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT)
 				{
 					leftMouseButtonDown = false;
-					Vec2 impulseDirection = (particles[0]->position - mouseCursor).UnitVector();
-					float impulseMagnitude = (particles[0]->position - mouseCursor).Magnitude() * 5.0;
-					particles[0]->velocity = impulseDirection * impulseMagnitude;
+					Particle * last = particles[particles.size() - 1];
+					Vec2 impulseDirection = (last->position - mouseCursor).UnitVector();
+					float impulseMagnitude = (last->position - mouseCursor).Magnitude() * 5.0;
+					last->velocity = impulseDirection * impulseMagnitude;
 				}
 				break;
 		}
