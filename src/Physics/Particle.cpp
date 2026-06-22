@@ -1,7 +1,7 @@
 #include "Particle.h"
 
-#include "../../third_party/SDL3.xcframework/macos-arm64_x86_64/SDL3.framework/Headers/SDL_log.h"
-#include <__system_error/errc.h>
+#include <SDL3/SDL.h>
+
 #include <stdexcept>
 
 Particle::Particle(float x, float y, float mass) : position(x, y), mass(mass)

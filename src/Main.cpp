@@ -19,8 +19,14 @@ int main(int argc, char * args[])
 			SDL_Delay(static_cast<Uint32>(MILLISECS_PER_FRAME - elapsed));
 		}
 		// delta time
-		double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-		// TODO: cap deta time
+		Uint64 deltaTimeMs = SDL_GetTicks() - millisecsPreviousFrame;
+		// Cap delta time
+		if(deltaTimeMs > MILLISECS_PER_FRAME)
+		{
+			deltaTimeMs = MILLISECS_PER_FRAME;
+		}
+
+		double deltaTime = deltaTimeMs / 1000.0;
 		app.ProcessInput();
 		app.Update(deltaTime);
 		app.Render();

@@ -22,6 +22,7 @@ namespace Force
 		Vec2 frictionDirection = particle.velocity.UnitVector() * -1.0;
 		return frictionDirection * k;
 	}
+
 	inline Vec2
 	GenerateGravitationalForce(const Particle & a, const Particle & b, float G, float minDistance, float maxDistance)
 	{
@@ -34,5 +35,16 @@ namespace Force
 		float attractionMag = G * a.mass * b.mass / distanceSquare;
 		Vec2 attractionForce = attractionDirection * attractionMag;
 		return attractionForce;
+	}
+
+	inline Vec2 GenerateSpringForce(const Particle & particle, Vec2 anchor, float restLength, float k)
+	{
+		Vec2 d = particle.position - anchor;
+		float displacement = d.Magnitude() - restLength;
+
+		Vec2 springDirection = d.UnitVector();
+		float springMagnitude = -k * displacement;
+		Vec2 springForce = springDirection * springMagnitude;
+		return springForce;
 	}
 }

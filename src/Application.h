@@ -10,11 +10,13 @@ private:
 	std::vector<Particle *> particles;
 	Vec2 pushForce;
 
-	SDL_Rect liquid;
-
-	// Mouse for friction force
+	// Mouse for impulse
 	Vec2 mouseCursor = Vec2(0, 0);
 	bool leftMouseButtonDown = false;
+	// For spring
+	Vec2 anchor = Vec2(0, 0);
+	float k = 100;
+	float restLength = 400;
 
 public:
 	Application() = default;

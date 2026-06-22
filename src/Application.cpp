@@ -15,13 +15,85 @@ void Application::Setup()
 {
 	running = Graphics::InitializeWindow("2d physics", 960, 720);
 
-	Particle * small = new Particle(200, 200, 1.0);
-	small->radius = 6.0;
-	particles.push_back(small);
+	anchor = Vec2(Graphics::Width() / 2.0, 30);
+	Particle * bob = new Particle(Graphics::Width() / 2.0, Graphics::Height() / 2.0, 2.0);
+	bob->radius = 10.0;
+	particles.push_back(bob);
+}
 
-	Particle * big = new Particle(500, 500, 20.0);
-	big->radius = 20;
-	particles.push_back(big);
+///////////////////////////////////////////////////////////////////////////////
+// Update function (called several times per second to update objects)
+///////////////////////////////////////////////////////////////////////////////
+void Application::Update(float deltaTime)
+{
+
+	for(auto particle : particles)
+	{
+		particle->AddForce(pushForce);
+
+		// Apply drag force
+		Vec2 drag = Force::GenerateDragForce(*particle, 0.01);
+		particle->AddForce(drag);
+
+		// // Apply weight force
+		Vec2 weight = Vec2(0.0, particle->mass * 9.8 * PIXELS_PER_METER);
+		particle->AddForce(weight);
+	}
+
+	// Apply spring force to the particle connected to the anchor
+	Vec2 springForce = Force::GenerateSpringForce(*particles[0], anchor, restLength, k);
+	particles[0]->AddForce(springForce);
+
+	for(auto particle : particles)
+	{
+		particle->Integrate(deltaTime);
+	}
+
+	// Check the boundaries of the window
+	for(auto particle : particles)
+	{
+		// Nasty hardcoded flip in velocity if it touches the limits of the screen window
+		if(particle->position.x - particle->radius < 0)
+		{
+			particle->position.x = particle->radius;
+			particle->velocity.x *= -0.9;
+		}
+		else if(particle->position.x + particle->radius > Graphics::Width())
+		{
+			particle->position.x = Graphics::Width() - particle->radius;
+			particle->velocity.x *= -0.9;
+		}
+		if(particle->position.y - particle->radius < 0)
+		{
+			particle->position.y = particle->radius;
+			particle->velocity.y *= -0.9;
+		}
+		else if(particle->position.y + particle->radius >= Graphics::Height())
+		{
+			particle->position.y = Graphics::Height() - particle->radius;
+			particle->velocity.y *= -0.9;
+		}
+	}
+}
+
+void Application::Render()
+{
+	Graphics::ClearScreen(0xFF056263);
+	if(leftMouseButtonDown)
+	{
+		Graphics::DrawLine(
+			particles[0]->position.x, particles[0]->position.y, mouseCursor.x, mouseCursor.y, 0xFF0000FF
+		);
+	}
+	// Draw spring
+	Graphics::DrawLine(anchor.x, anchor.y, particles[0]->position.x, particles[0]->position.y, 0xFF313131);
+
+	// Draw anchor
+	Graphics::DrawFillCircle(anchor.x, anchor.y, 5, 0xFF001155);
+	// Draw bob
+	Graphics::DrawFillCircle(particles[0]->position.x, particles[0]->position.y, particles[0]->radius, 0xFFFFFFFF);
+
+	Graphics::RenderFrame();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,84 +156,6 @@ void Application::ProcessInput()
 				break;
 		}
 	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Update function (called several times per second to update objects)
-///////////////////////////////////////////////////////////////////////////////
-void Application::Update(float deltaTime)
-{
-
-	for(auto particle : particles)
-	{
-		// Apply a "weight" force to my particles
-		// Vec2 weight = Vec2(0.0, particle->mass * 9.8 * PIXELS_PER_METER);
-		// particle->AddForce(weight);
-		// Apply a "push" force to my particles
-		particle->AddForce(pushForce);
-
-		Vec2 friction = Force::GenerateFrictionForce(*particle, 20);
-		particle->AddForce(friction);
-		// Apply a drag force if we are inside the liquid
-		// if(particle->position.y > liquid.y)
-		// {
-		// 	Vec2 drag = Force::GenerateDragForce(*particle, 0.03);
-		// 	particle->AddForce(drag);
-		// }
-	}
-
-	Vec2 attraction = Force::GenerateGravitationalForce(*particles[0], *particles[1], 1000.0, 5, 100);
-	particles[0]->AddForce(attraction);
-	particles[1]->AddForce(-attraction);
-
-	for(auto particle : particles)
-	{
-		particle->Integrate(deltaTime);
-	}
-
-	for(auto particle : particles)
-	{
-		if(particle->position.x - particle->radius < 0)
-		{
-			particle->position.x = particle->radius;
-			particle->velocity.x *= -0.9;
-		}
-		else if(particle->position.x + particle->radius > Graphics::Width())
-		{
-			particle->position.x = Graphics::Width() - particle->radius;
-			particle->velocity.x *= -0.9;
-		}
-		if(particle->position.y - particle->radius < 0)
-		{
-			particle->position.y = particle->radius;
-			particle->velocity.y *= -0.9;
-		}
-		else if(particle->position.y + particle->radius >= Graphics::Height())
-		{
-			particle->position.y = Graphics::Height() - particle->radius;
-			particle->velocity.y *= -0.9;
-		}
-	}
-}
-
-void Application::Render()
-{
-	Graphics::ClearScreen(0xFF056263);
-	// Graphics::DrawFillRect(liquid.x + liquid.w / 2, liquid.y + liquid.h / 2, liquid.w, liquid.h, 0xFF6E3713);
-	if(leftMouseButtonDown)
-	{
-		Graphics::DrawLine(
-			particles[0]->position.x, particles[0]->position.y, mouseCursor.x, mouseCursor.y, 0xFF0000FF
-		);
-	}
-	Graphics::DrawFillCircle(particles[0]->position.x, particles[0]->position.y, particles[0]->radius, 0xFFAA3300);
-	Graphics::DrawFillCircle(particles[1]->position.x, particles[1]->position.y, particles[1]->radius, 0xFF00FFFF);
-	// for(auto particle : particles)
-	// {
-	// 	Graphics::DrawFillCircle(particle->position.x, particle->position.y, particle->radius, 0xFFFFFFFF);
-	// }
-
-	Graphics::RenderFrame();
 }
 
 void Application::Destroy()
