@@ -15,8 +15,8 @@ private:
 	bool leftMouseButtonDown = false;
 	// For spring
 	Vec2 anchor = Vec2(0, 0);
-	float k = 300;
-	float restLength = 15;
+	float k = 500;
+	float restLength = 7;
 
 public:
 	Application() = default;

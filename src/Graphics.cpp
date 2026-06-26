@@ -38,7 +38,7 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 		const SDL_DisplayMode * mode = SDL_GetCurrentDisplayMode(primaryDisplay);
 		SDL_Log("Screen resolution: %d x %d", mode->w, mode->h);
 		// nativeWindowWidth = 2 * mode->w / 3;
-		nativeWindowHeight = 2 * mode->h / 3;
+		nativeWindowHeight = 4 * mode->h / 5;
 		// keep aspect ratio
 		nativeWindowWidth = nativeWindowHeight * width / height;
 	}
