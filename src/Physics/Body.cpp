@@ -1,10 +1,10 @@
-#include "Particle.h"
+#include "Body.h"
 
 #include <SDL3/SDL.h>
 
 #include <stdexcept>
 
-Particle::Particle(float x, float y, float mass) : position(x, y), mass(mass)
+Body::Body(float x, float y, float mass) : position(x, y), mass(mass)
 {
 	if(mass == 0)
 	{
@@ -13,7 +13,7 @@ Particle::Particle(float x, float y, float mass) : position(x, y), mass(mass)
 	invMass = 1 / mass;
 }
 
-void Particle::Integrate(float dt)
+void Body::Integrate(float dt)
 {
 	// The acceleration is calculated from the net-force divided by the mass
 	acceleration = sumForces * invMass;
@@ -30,11 +30,11 @@ void Particle::Integrate(float dt)
 
 	ClearForces();
 }
-void Particle::AddForce(const Vec2 & force)
+void Body::AddForce(const Vec2 & force)
 {
 	sumForces += force;
 }
-void Particle::ClearForces()
+void Body::ClearForces()
 {
 	sumForces = Vec2(0, 0);
 }

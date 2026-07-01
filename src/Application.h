@@ -1,5 +1,5 @@
 #pragma once
-#include "Physics/Particle.h"
+#include "Physics/Body.h"
 #include <SDL3/SDL.h>
 #include <vector>
 
@@ -7,7 +7,7 @@ class Application
 {
 private:
 	bool running = false;
-	std::vector<Particle *> particles;
+	std::vector<Body *> bodies;
 	Vec2 pushForce;
 
 	// Mouse for impulse

@@ -1,10 +1,10 @@
 #pragma once
-#include "Particle.h"
+#include "Body.h"
 #include "Vec2.h"
 
 namespace Force
 {
-	inline Vec2 GenerateDragForce(const Particle & particle, float k)
+	inline Vec2 GenerateDragForce(const Body & particle, float k)
 	{
 		Vec2 dragForce = Vec2(0, 0);
 		if(particle.velocity.MagnitudeSquared() > 0)
@@ -17,14 +17,14 @@ namespace Force
 		return dragForce;
 	}
 
-	inline Vec2 GenerateFrictionForce(const Particle & particle, float k)
+	inline Vec2 GenerateFrictionForce(const Body & particle, float k)
 	{
 		Vec2 frictionDirection = particle.velocity.UnitVector() * -1.0;
 		return frictionDirection * k;
 	}
 
 	inline Vec2
-	GenerateGravitationalForce(const Particle & a, const Particle & b, float G, float minDistance, float maxDistance)
+	GenerateGravitationalForce(const Body & a, const Body & b, float G, float minDistance, float maxDistance)
 	{
 		Vec2 d = b.position - a.position;
 		float distanceSquare = d.MagnitudeSquared();
@@ -37,7 +37,7 @@ namespace Force
 		return attractionForce;
 	}
 
-	inline Vec2 GenerateSpringForce(const Particle & particle, Vec2 anchor, float restLength, float k)
+	inline Vec2 GenerateSpringForce(const Body & particle, Vec2 anchor, float restLength, float k)
 	{
 		Vec2 d = particle.position - anchor;
 		float displacement = d.Magnitude() - restLength;
