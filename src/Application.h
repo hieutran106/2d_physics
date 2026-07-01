@@ -13,10 +13,11 @@ private:
 	// Mouse for impulse
 	Vec2 mouseCursor = Vec2(0, 0);
 	bool leftMouseButtonDown = false;
-	// For spring
-	Vec2 anchor = Vec2(0, 0);
-	float k = 500;
-	float restLength = 7;
+
+	// For soft body
+	float k = 1500;
+	float restLength = 200;
+	const int NUM_PARTICLES = 4;
 
 public:
 	Application() = default;

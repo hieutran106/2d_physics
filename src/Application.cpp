@@ -15,14 +15,20 @@ void Application::Setup()
 {
 	running = Graphics::InitializeWindow("2d physics", 960, 720);
 
-	anchor = Vec2(Graphics::Width() / 2.0, 30);
+	Particle * a = new Particle(100, 100, 1.0);
+	Particle * b = new Particle(300, 100, 1.0);
+	Particle * c = new Particle(300, 300, 1.0);
+	Particle * d = new Particle(100, 300, 1.0);
 
-	for(int i = 0; i < 15; i++)
-	{
-		Particle * p = new Particle(anchor.x, anchor.y + i * restLength, 2.0);
-		p->radius = 3;
-		particles.push_back(p);
-	}
+	a->radius = 6;
+	b->radius = 6;
+	c->radius = 6;
+	d->radius = 6;
+
+	particles.push_back(a);
+	particles.push_back(b);
+	particles.push_back(c);
+	particles.push_back(d);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,20 +50,24 @@ void Application::Update(float deltaTime)
 		particle->AddForce(weight);
 	}
 
-	// Attach the head to the anchor with a spring
-	Vec2 springForce = Force::GenerateSpringForce(*particles[0], anchor, restLength, k);
-	particles[0]->AddForce(springForce);
-
 	// Connect
-	for(int i = 1; i < particles.size(); i++)
+	for(int i = 0; i < particles.size(); i++)
 	{
 		int curr = i;
-		int prev = i - 1;
+		int next = (i + 1) % particles.size();
 
-		Vec2 springForce = Force::GenerateSpringForce(*particles[curr], particles[prev]->position, restLength, k);
+		Vec2 springForce = Force::GenerateSpringForce(*particles[curr], particles[next]->position, restLength, k);
 		particles[curr]->AddForce(springForce);
-		particles[prev]->AddForce(-springForce);
+		particles[next]->AddForce(-springForce);
 	}
+
+	Vec2 springForce = Force::GenerateSpringForce(*particles[0], particles[2]->position, restLength, k);
+	particles[0]->AddForce(springForce);
+	particles[2]->AddForce(-springForce);
+
+	springForce = Force::GenerateSpringForce(*particles[1], particles[3]->position, restLength, k);
+	particles[1]->AddForce(springForce);
+	particles[3]->AddForce(-springForce);
 
 	for(auto particle : particles)
 	{
@@ -104,26 +114,38 @@ void Application::Render()
 			0xFF0000FF
 		);
 	}
-	// Draw spring
-	Graphics::DrawLine(anchor.x, anchor.y, particles[0]->position.x, particles[0]->position.y, 0xFF313131);
 
-	// Draw anchor
-	Graphics::DrawFillCircle(anchor.x, anchor.y, 5, 0xFF001155);
 	// Draw bob
 	for(int i = 0; i < particles.size(); i++)
 	{
 		Graphics::DrawFillCircle(particles[i]->position.x, particles[i]->position.y, particles[0]->radius, 0xFFFFFFFF);
 		// Draw spring between particles
-		if(i == 0)
-			continue;
+		int next = (i + 1) % NUM_PARTICLES;
+
 		Graphics::DrawLine(
-			particles[i - 1]->position.x,
-			particles[i - 1]->position.y,
 			particles[i]->position.x,
 			particles[i]->position.y,
+			particles[next]->position.x,
+			particles[next]->position.y,
 			0xFF313131
 		);
 	}
+
+	Graphics::DrawLine(
+		particles[0]->position.x,
+		particles[0]->position.y,
+		particles[2]->position.x,
+		particles[2]->position.y,
+		0xFF313131
+	);
+
+	Graphics::DrawLine(
+		particles[1]->position.x,
+		particles[1]->position.y,
+		particles[3]->position.x,
+		particles[3]->position.y,
+		0xFF313131
+	);
 
 	Graphics::RenderFrame();
 }
