@@ -15,20 +15,10 @@ void Application::Setup()
 {
 	running = Graphics::InitializeWindow("2d physics", 960, 720);
 
-	Body * a = new Body(100, 100, 1.0);
-	Body * b = new Body(300, 100, 1.0);
-	Body * c = new Body(300, 300, 1.0);
-	Body * d = new Body(100, 300, 1.0);
+	Body * a = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 
 	a->radius = 6;
-	b->radius = 6;
-	c->radius = 6;
-	d->radius = 6;
-
 	bodies.push_back(a);
-	bodies.push_back(b);
-	bodies.push_back(c);
-	bodies.push_back(d);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,21 +109,7 @@ void Application::Render()
 	for(int i = 0; i < bodies.size(); i++)
 	{
 		Graphics::DrawFillCircle(bodies[i]->position.x, bodies[i]->position.y, bodies[0]->radius, 0xFFFFFFFF);
-		// Draw spring between particles
-		int next = (i + 1) % NUM_PARTICLES;
-
-		Graphics::DrawLine(
-			bodies[i]->position.x, bodies[i]->position.y, bodies[next]->position.x, bodies[next]->position.y, 0xFF313131
-		);
 	}
-
-	Graphics::DrawLine(
-		bodies[0]->position.x, bodies[0]->position.y, bodies[2]->position.x, bodies[2]->position.y, 0xFF313131
-	);
-
-	Graphics::DrawLine(
-		bodies[1]->position.x, bodies[1]->position.y, bodies[3]->position.x, bodies[3]->position.y, 0xFF313131
-	);
 
 	Graphics::RenderFrame();
 }

@@ -4,13 +4,18 @@
 
 #include <stdexcept>
 
-Body::Body(float x, float y, float mass) : position(x, y), mass(mass)
+Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mass(mass)
 {
+	this->shape = shape.Clone();
 	if(mass == 0)
 	{
 		throw std::invalid_argument("Mass cannot be zero.");
 	}
 	invMass = 1 / mass;
+}
+Body::~Body()
+{
+	delete shape;
 }
 
 void Body::Integrate(float dt)
