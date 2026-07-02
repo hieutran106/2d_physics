@@ -4,31 +4,25 @@
 
 namespace SDLHelper
 {
-	inline Display ConfigureSDLDisplaySize(SDL_Window * window, SDL_Renderer * renderer, int width, int height)
+	inline Display ConfigureSDLDisplaySize(SDL_Window * window)
 	{
 		Display display;
-		// Logical size
-		display.windowWidth = width;
-		display.windowHeight = height;
-		SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_STRETCH);
-
-		SDL_GetWindowSize(window, &display.nativeWindowWidth, &display.nativeWindowHeight);
+		SDL_GetWindowSize(window, &display.windowWidth, &display.windowHeight);
 		display.density = SDL_GetWindowPixelDensity(window);
 		display.scale = SDL_GetWindowDisplayScale(window);
 
+		SDL_GetWindowSizeInPixels(window, &display.fbWidth, &display.fbHeight);
+
 		SDL_LogDebug(
 			SDL_LOG_CATEGORY_APPLICATION,
-			"SDL Logical window size: %d x %d, Native window size: %d x %d, pixel density: %.2f, scale=%.2f",
+			"SDL Window size: %d x %d, Physical pixels: %d x %d, pixel density: %.2f, scale=%.2f",
 			display.windowWidth,
 			display.windowHeight,
-			display.nativeWindowWidth,
-			display.nativeWindowHeight,
+			display.fbWidth,
+			display.fbHeight,
 			display.density,
 			display.scale
 		);
-
-		SDL_GetWindowSizeInPixels(window, &display.fbWidth, &display.fbHeight);
-		SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Physical pixels: %d x %d", display.fbWidth, display.fbHeight);
 		return display;
 	}
 

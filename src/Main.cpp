@@ -10,7 +10,7 @@ int main(int argc, char * args[])
 	Application app;
 	app.Setup();
 	Uint64 millisecsPreviousFrame = SDL_GetTicks();
-	while(app.IsRunning())
+	while(app.running)
 	{
 		// If we are too fast, waste some time until we reach the MILLISECS_PER_FRAME
 		Uint64 elapsed = SDL_GetTicks() - millisecsPreviousFrame;

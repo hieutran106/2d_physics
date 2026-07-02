@@ -6,7 +6,7 @@
 class Application
 {
 private:
-	bool running = false;
+	bool mRunning = false;
 	std::vector<Body *> bodies;
 	Vec2 pushForce;
 
@@ -22,7 +22,10 @@ private:
 public:
 	Application() = default;
 	~Application() = default;
-	bool IsRunning();
+
+	// Public read-only access point
+	const bool & running = mRunning;
+
 	void Setup();
 	void ProcessInput();
 	void Update(float deltaTime);

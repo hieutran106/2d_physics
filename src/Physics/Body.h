@@ -17,7 +17,6 @@ struct Body
 	// Mass
 	float mass;
 	float invMass;
-	float radius;
 
 	// A pointer to the geometry
 	Shape * shape = nullptr;

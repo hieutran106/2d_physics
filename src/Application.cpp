@@ -3,21 +3,13 @@
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
 
-bool Application::IsRunning()
-{
-	return running;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Setup function (executed once in the beginning of the simulation)
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Setup()
 {
-	running = Graphics::InitializeWindow("2d physics", 960, 720);
-
+	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
 	Body * a = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-
-	a->radius = 6;
 	bodies.push_back(a);
 }
 
@@ -40,25 +32,6 @@ void Application::Update(float deltaTime)
 		body->AddForce(weight);
 	}
 
-	// Connect
-	for(int i = 0; i < bodies.size(); i++)
-	{
-		int curr = i;
-		int next = (i + 1) % bodies.size();
-
-		Vec2 springForce = Force::GenerateSpringForce(*bodies[curr], bodies[next]->position, restLength, k);
-		bodies[curr]->AddForce(springForce);
-		bodies[next]->AddForce(-springForce);
-	}
-
-	Vec2 springForce = Force::GenerateSpringForce(*bodies[0], bodies[2]->position, restLength, k);
-	bodies[0]->AddForce(springForce);
-	bodies[2]->AddForce(-springForce);
-
-	springForce = Force::GenerateSpringForce(*bodies[1], bodies[3]->position, restLength, k);
-	bodies[1]->AddForce(springForce);
-	bodies[3]->AddForce(-springForce);
-
 	for(auto particle : bodies)
 	{
 		particle->Integrate(deltaTime);
@@ -67,26 +40,31 @@ void Application::Update(float deltaTime)
 	// Check the boundaries of the window
 	for(auto body : bodies)
 	{
-		// Nasty hardcoded flip in velocity if it touches the limits of the screen window
-		if(body->position.x - body->radius < 0)
+		if(body->shape->GetType() == CIRCLE)
 		{
-			body->position.x = body->radius;
-			body->velocity.x *= -0.9;
-		}
-		else if(body->position.x + body->radius > Graphics::Width())
-		{
-			body->position.x = Graphics::Width() - body->radius;
-			body->velocity.x *= -0.9;
-		}
-		if(body->position.y - body->radius < 0)
-		{
-			body->position.y = body->radius;
-			body->velocity.y *= -0.9;
-		}
-		else if(body->position.y + body->radius >= Graphics::Height())
-		{
-			body->position.y = Graphics::Height() - body->radius;
-			body->velocity.y *= -0.9;
+			CircleShape * circle = (CircleShape *)body->shape;
+			float radius = circle->radius;
+			// Nasty hardcoded flip in velocity if it touches the limits of the screen window
+			if(body->position.x - radius < 0)
+			{
+				body->position.x = radius;
+				body->velocity.x *= -0.9;
+			}
+			else if(body->position.x + radius > Graphics::Width())
+			{
+				body->position.x = Graphics::Width() - radius;
+				body->velocity.x *= -0.9;
+			}
+			if(body->position.y - radius < 0)
+			{
+				body->position.y = radius;
+				body->velocity.y *= -0.9;
+			}
+			else if(body->position.y + radius >= Graphics::Height())
+			{
+				body->position.y = Graphics::Height() - radius;
+				body->velocity.y *= -0.9;
+			}
 		}
 	}
 }
@@ -105,10 +83,18 @@ void Application::Render()
 		);
 	}
 
-	// Draw bob
-	for(int i = 0; i < bodies.size(); i++)
+	// Draw all bodies
+	for(Body * body : bodies)
 	{
-		Graphics::DrawFillCircle(bodies[i]->position.x, bodies[i]->position.y, bodies[0]->radius, 0xFFFFFFFF);
+		if(body->shape->GetType() == CIRCLE)
+		{
+			auto * circle = static_cast<CircleShape *>(body->shape);
+			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, 0.0, 0xFFFFFFFF);
+		}
+		else
+		{
+			// TODO: Draw other types of shapes
+		}
 	}
 
 	Graphics::RenderFrame();
@@ -125,11 +111,11 @@ void Application::ProcessInput()
 		switch(event.type)
 		{
 			case SDL_EVENT_QUIT:
-				running = false;
+				mRunning = false;
 				break;
 			case SDL_EVENT_KEY_DOWN:
 				if(event.key.key == SDLK_ESCAPE)
-					running = false;
+					mRunning = false;
 				if(event.key.key == SDLK_UP)
 					pushForce.y = -50 * PIXELS_PER_METER;
 				if(event.key.key == SDLK_RIGHT)

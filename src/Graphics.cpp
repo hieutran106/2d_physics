@@ -37,7 +37,6 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 		SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
 		const SDL_DisplayMode * mode = SDL_GetCurrentDisplayMode(primaryDisplay);
 		SDL_Log("Screen resolution: %d x %d", mode->w, mode->h);
-		// nativeWindowWidth = 2 * mode->w / 3;
 		nativeWindowHeight = 4 * mode->h / 5;
 		// keep aspect ratio
 		nativeWindowWidth = nativeWindowHeight * width / height;
@@ -60,7 +59,7 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer");
 		return false;
 	}
-	display = SDLHelper::ConfigureSDLDisplaySize(window, renderer, width, height);
+	display = SDLHelper::ConfigureSDLDisplaySize(window);
 	return true;
 }
 

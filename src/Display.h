@@ -10,9 +10,6 @@ struct Display
 	int fbWidth = 0;
 	int fbHeight = 0;
 
-	int nativeWindowWidth = 0;
-	int nativeWindowHeight = 0;
-
 	float density = 0;
 	float scale = 0;
 };
