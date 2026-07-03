@@ -6,16 +6,16 @@
 
 SDL_Window * Graphics::window = nullptr;
 SDL_Renderer * Graphics::renderer = nullptr;
-Display Graphics::display;
+WindowInfo Graphics::windowInfo;
 
 int Graphics::Width()
 {
-	return display.windowWidth;
+	return windowInfo.fbWidth;
 }
 
 int Graphics::Height()
 {
-	return display.windowHeight;
+	return windowInfo.fbHeight;
 }
 
 bool Graphics::InitializeWindow(const char * title, int width, int height)
@@ -59,7 +59,7 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer");
 		return false;
 	}
-	display = SDLHelper::ConfigureSDLDisplaySize(window);
+	windowInfo = SDLHelper::ConfigureSDLDisplaySize(window);
 	return true;
 }
 

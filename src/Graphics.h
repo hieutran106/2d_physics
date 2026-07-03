@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Display.h"
 #include "Physics/Vec2.h"
+#include "WindowInfo.h"
 #include <SDL3/SDL.h>
 #include <vector>
 
 class Graphics
 {
+
+public:
 	static SDL_Window * window;
 	static SDL_Renderer * renderer;
 
-public:
-	static Display display;
+	static WindowInfo windowInfo;
 	static int Width();
 	static int Height();
 	static bool InitializeWindow(const char * title, int width, int height);

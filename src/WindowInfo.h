@@ -1,6 +1,6 @@
 #pragma once
 
-struct Display
+struct WindowInfo
 {
 	// Render size
 	int windowWidth = 0;

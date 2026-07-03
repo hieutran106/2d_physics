@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mass(mass)
+Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mass(m)
 {
 	this->shape = shape.Clone();
 	if(mass == 0)
@@ -32,7 +32,6 @@ void Body::Integrate(float dt)
 	}
 	// Integrate the velocity to find the new position for the next step
 	position += velocity * dt;
-
 	ClearForces();
 }
 void Body::AddForce(const Vec2 & force)

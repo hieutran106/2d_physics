@@ -1,12 +1,12 @@
 #pragma once
-#include "Display.h"
+#include "WindowInfo.h"
 #include <SDL3/SDL.h>
 
 namespace SDLHelper
 {
-	inline Display ConfigureSDLDisplaySize(SDL_Window * window)
+	inline WindowInfo ConfigureSDLDisplaySize(SDL_Window * window)
 	{
-		Display display;
+		WindowInfo display;
 		SDL_GetWindowSize(window, &display.windowWidth, &display.windowHeight);
 		display.density = SDL_GetWindowPixelDensity(window);
 		display.scale = SDL_GetWindowDisplayScale(window);
