@@ -37,15 +37,7 @@ void Application::Update(float deltaTime)
 
 	for(auto body : bodies)
 	{
-		body->IntegrateLinear(deltaTime);
-		body->IntegrateAngular(deltaTime);
-		auto shapeType = body->shape->GetType();
-		bool isPolygon = shapeType == POLYGON || shapeType == BOX;
-		if(isPolygon)
-		{
-			PolygonShape * polygonShape = (PolygonShape *)body->shape;
-			polygonShape->UpdateVertices(body->rotation, body->position);
-		}
+		body->Update(deltaTime);
 	}
 
 	// Check the boundaries of the window

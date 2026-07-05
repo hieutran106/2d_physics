@@ -59,7 +59,7 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer");
 		return false;
 	}
-	windowInfo = SDLHelper::ConfigureSDLDisplaySize(window);
+	windowInfo = SDLHelper::ConfigureSDLWindowInfo(window);
 	return true;
 }
 

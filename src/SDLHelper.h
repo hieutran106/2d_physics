@@ -4,26 +4,26 @@
 
 namespace SDLHelper
 {
-	inline WindowInfo ConfigureSDLDisplaySize(SDL_Window * window)
+	inline WindowInfo ConfigureSDLWindowInfo(SDL_Window * window)
 	{
-		WindowInfo display;
-		SDL_GetWindowSize(window, &display.windowWidth, &display.windowHeight);
-		display.density = SDL_GetWindowPixelDensity(window);
-		display.scale = SDL_GetWindowDisplayScale(window);
+		WindowInfo windowInfo;
+		SDL_GetWindowSize(window, &windowInfo.windowWidth, &windowInfo.windowHeight);
+		windowInfo.density = SDL_GetWindowPixelDensity(window);
+		windowInfo.scale = SDL_GetWindowDisplayScale(window);
 
-		SDL_GetWindowSizeInPixels(window, &display.fbWidth, &display.fbHeight);
+		SDL_GetWindowSizeInPixels(window, &windowInfo.fbWidth, &windowInfo.fbHeight);
 
 		SDL_LogDebug(
 			SDL_LOG_CATEGORY_APPLICATION,
 			"SDL Window size: %d x %d, Physical pixels: %d x %d, pixel density: %.2f, scale=%.2f",
-			display.windowWidth,
-			display.windowHeight,
-			display.fbWidth,
-			display.fbHeight,
-			display.density,
-			display.scale
+			windowInfo.windowWidth,
+			windowInfo.windowHeight,
+			windowInfo.fbWidth,
+			windowInfo.fbHeight,
+			windowInfo.density,
+			windowInfo.scale
 		);
-		return display;
+		return windowInfo;
 	}
 
 	inline bool IsIOS()
