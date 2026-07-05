@@ -29,7 +29,8 @@ struct CircleShape : public Shape
 
 struct PolygonShape : public Shape
 {
-	std::vector<Vec2> vertices;
+	std::vector<Vec2> localVertices;
+	std::vector<Vec2> worldVertices;
 
 	PolygonShape() = default;
 	explicit PolygonShape(const std::vector<Vec2> & vertices);
@@ -37,6 +38,8 @@ struct PolygonShape : public Shape
 	ShapeType GetType() const override;
 	float GetMomentOfInertia() const override;
 	Shape * Clone() const override;
+	// Function to transform the polygon vertices from "local space" to "world space"
+	void UpdateVertices(float rotation, const Vec2 & position);
 };
 
 struct BoxShape : public PolygonShape

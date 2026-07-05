@@ -9,8 +9,8 @@
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
-	Body * a = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-	bodies.push_back(a);
+	Body * box = new Body(BoxShape(200, 100), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	bodies.push_back(box);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,24 +21,31 @@ void Application::Update(float deltaTime)
 
 	for(auto body : bodies)
 	{
-		body->AddForce(pushForce);
+		// body->AddForce(pushForce);
 
 		// Apply drag force
-		Vec2 drag = Force::GenerateDragForce(*body, 0.002);
-		body->AddForce(drag);
+		// Vec2 drag = Force::GenerateDragForce(*body, 0.002);
+		// body->AddForce(drag);
 
 		// // Apply weight force
-		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		body->AddForce(weight);
+		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
+		// body->AddForce(weight);
 
-		float torque = 20;
+		float torque = 40;
 		body->AddTorque(torque);
 	}
 
-	for(auto particle : bodies)
+	for(auto body : bodies)
 	{
-		particle->IntegrateLinear(deltaTime);
-		particle->IntegrateAngular(deltaTime);
+		body->IntegrateLinear(deltaTime);
+		body->IntegrateAngular(deltaTime);
+		auto shapeType = body->shape->GetType();
+		bool isPolygon = shapeType == POLYGON || shapeType == BOX;
+		if(isPolygon)
+		{
+			PolygonShape * polygonShape = (PolygonShape *)body->shape;
+			polygonShape->UpdateVertices(body->rotation, body->position);
+		}
 	}
 
 	// Check the boundaries of the window
@@ -95,9 +102,10 @@ void Application::Render()
 			auto * circle = static_cast<CircleShape *>(body->shape);
 			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, 0xFFFFFFFF);
 		}
-		else
+		if(body->shape->GetType() == BOX)
 		{
-			// TODO: Draw other types of shapes
+			BoxShape * boxShape = static_cast<BoxShape *>(body->shape);
+			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, 0xFFFFFFFF);
 		}
 	}
 
