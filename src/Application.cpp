@@ -30,11 +30,15 @@ void Application::Update(float deltaTime)
 		// // Apply weight force
 		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
 		body->AddForce(weight);
+
+		float torque = 20;
+		body->AddTorque(torque);
 	}
 
 	for(auto particle : bodies)
 	{
-		particle->Integrate(deltaTime);
+		particle->IntegrateLinear(deltaTime);
+		particle->IntegrateAngular(deltaTime);
 	}
 
 	// Check the boundaries of the window
@@ -89,7 +93,7 @@ void Application::Render()
 		if(body->shape->GetType() == CIRCLE)
 		{
 			auto * circle = static_cast<CircleShape *>(body->shape);
-			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, 0.0, 0xFFFFFFFF);
+			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, 0xFFFFFFFF);
 		}
 		else
 		{

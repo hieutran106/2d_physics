@@ -10,7 +10,8 @@ ShapeType CircleShape::GetType() const
 
 float CircleShape::GetMomentOfInertia() const
 {
-	return 0;
+	// 1/2 * r ^2, but still needs to be multiply by the rigidbody's mass
+	return radius * radius / 2;
 }
 
 Shape * CircleShape::Clone() const
@@ -41,7 +42,7 @@ ShapeType BoxShape::GetType() const
 }
 float BoxShape::GetMomentOfInertia() const
 {
-	return 0;
+	return (width * width + height * height) / 12;
 }
 
 Shape * BoxShape::Clone() const

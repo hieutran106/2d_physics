@@ -12,13 +12,20 @@ Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mas
 		throw std::invalid_argument("Mass cannot be zero.");
 	}
 	invMass = 1 / mass;
+
+	this->I = shape.GetMomentOfInertia() * mass;
+	if(I == 0)
+	{
+		throw std::invalid_argument("Moment of Inertia cannot be zero.");
+	}
+	this->invI = 1 / this->I;
 }
 Body::~Body()
 {
 	delete shape;
 }
 
-void Body::Integrate(float dt)
+void Body::IntegrateLinear(float dt)
 {
 	// The acceleration is calculated from the net-force divided by the mass
 	acceleration = sumForces * invMass;
@@ -34,6 +41,13 @@ void Body::Integrate(float dt)
 	position += velocity * dt;
 	ClearForces();
 }
+void Body::IntegrateAngular(float dt)
+{
+	angularAcceleration = sumTorque * invI;
+	angularVelocity += angularAcceleration * dt;
+	rotation += angularVelocity * dt;
+	ClearTorque();
+}
 void Body::AddForce(const Vec2 & force)
 {
 	sumForces += force;
@@ -41,4 +55,15 @@ void Body::AddForce(const Vec2 & force)
 void Body::ClearForces()
 {
 	sumForces = Vec2(0, 0);
+}
+////////////////////////////////////////
+// Torque
+void Body::AddTorque(float torque)
+{
+	sumTorque += torque;
+}
+
+void Body::ClearTorque()
+{
+	sumTorque = 0;
 }
