@@ -56,8 +56,16 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 	renderer = SDL_CreateRenderer(window, nullptr);
 	if(!renderer)
 	{
-		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer");
+		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer: %s", SDL_GetError());
 		return false;
+	}
+	SDL_PropertiesID props = SDL_GetRendererProperties(renderer);
+	SDL_PixelFormat * format = static_cast<SDL_PixelFormat *>(
+		SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr)
+	);
+	if(format)
+	{
+		SDL_Log("SDL_Renderer PixelFormat: %s", SDL_GetPixelFormatName(*format));
 	}
 	windowInfo = SDLHelper::ConfigureSDLWindowInfo(window);
 	return true;

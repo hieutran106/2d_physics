@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Graphics.h"
+#include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
 
@@ -9,8 +10,11 @@
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
-	Body * box = new Body(BoxShape(200, 100), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-	bodies.push_back(box);
+	Body * bigBall = new Body(CircleShape(100), 100, 100, 1.0);
+	Body * smallBall = new Body(CircleShape(50), 500, 100, 1.0);
+
+	bodies.push_back(bigBall);
+	bodies.push_back(smallBall);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +22,7 @@ void Application::Setup()
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Update(float deltaTime)
 {
-
+	Graphics::ClearScreen(0xFF056263);
 	for(auto body : bodies)
 	{
 		// body->AddForce(pushForce);
@@ -30,14 +34,47 @@ void Application::Update(float deltaTime)
 		// // Apply weight force
 		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
 		// body->AddForce(weight);
+		//
+		// Vec2 wind = Vec2(20.0 * PIXELS_PER_METER, 0);
+		// body->AddForce(wind);
 
-		float torque = 40;
-		body->AddTorque(torque);
+		// float torque = 400;
+		// body->AddTorque(torque);
 	}
 
 	for(auto body : bodies)
 	{
 		body->Update(deltaTime);
+	}
+
+	for(const auto body : bodies)
+	{
+		body->isColliding = false;
+	}
+	// Check all the bodies for collision
+	for(int i = 0; i < bodies.size() - 1; i++)
+	{
+		for(int j = i + 1; j < bodies.size(); j++)
+		{
+			Body * a = bodies[i];
+			Body * b = bodies[j];
+			Contact contact;
+			bool isColliding = CollisionDetection::IsColliding(a, b, contact);
+			if(isColliding)
+			{
+				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 3, 0xFFFF00FF);
+				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 3, 0xFFFF00FF);
+				Graphics::DrawLine(
+					contact.start.x,
+					contact.start.y,
+					contact.start.x + contact.normal.x * 15,
+					contact.start.y + contact.normal.y * 15,
+					0xFFFF00FF
+				);
+				a->isColliding = true;
+				b->isColliding = true;
+			}
+		}
 	}
 
 	// Check the boundaries of the window
@@ -74,7 +111,7 @@ void Application::Update(float deltaTime)
 
 void Application::Render()
 {
-	Graphics::ClearScreen(0xFF056263);
+	// Graphics::ClearScreen(0xFF056263);
 	if(leftMouseButtonDown)
 	{
 		Graphics::DrawLine(
@@ -89,10 +126,11 @@ void Application::Render()
 	// Draw all bodies
 	for(Body * body : bodies)
 	{
+		uint32_t color = body->isColliding ? 0xFF0000FF : 0xFFFFFFFF;
 		if(body->shape->GetType() == CIRCLE)
 		{
 			auto * circle = static_cast<CircleShape *>(body->shape);
-			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, 0xFFFFFFFF);
+			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, color);
 		}
 		if(body->shape->GetType() == BOX)
 		{
@@ -150,9 +188,14 @@ void Application::ProcessInput()
 				}
 				break;
 			case SDL_EVENT_MOUSE_MOTION:
-				mouseCursor.x = event.motion.x;
-				mouseCursor.y = event.motion.y;
+			{
+				// mouseCursor.x = event.motion.x;
+				// mouseCursor.y = event.motion.y;
+				Vec2 mousePosition{event.motion.x, event.motion.y};
+				mousePosition = mousePosition * Graphics::windowInfo.density;
+				bodies[0]->position = mousePosition;
 				break;
+			}
 			case SDL_EVENT_MOUSE_BUTTON_UP:
 				if(leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT)
 				{

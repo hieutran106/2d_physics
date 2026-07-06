@@ -58,6 +58,7 @@ void Body::IntegrateAngular(float dt)
 	angularAcceleration = sumTorque * invI;
 	angularVelocity += angularAcceleration * dt;
 	rotation += angularVelocity * dt;
+	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity, rotation);
 	ClearTorque();
 }
 void Body::AddForce(const Vec2 & force)

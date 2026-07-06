@@ -10,9 +10,9 @@ struct Body
 	Vec2 acceleration;
 
 	// Angular motion
-	float rotation;
-	float angularVelocity;
-	float angularAcceleration;
+	float rotation{};
+	float angularVelocity{};
+	float angularAcceleration{};
 
 	// Forces and Torque
 	Vec2 sumForces;
@@ -23,6 +23,9 @@ struct Body
 	float invMass;
 	float I;
 	float invI;
+
+	// Collision
+	bool isColliding = false;
 
 	// A pointer to the geometry
 	Shape * shape = nullptr;
