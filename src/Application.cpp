@@ -10,11 +10,11 @@
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
-	Body * bigBall = new Body(CircleShape(100), 100, 100, 1.0);
-	Body * smallBall = new Body(CircleShape(50), 500, 100, 1.0);
+	Body * bigBall = new Body(CircleShape(200), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
+	// Body * smallBall = new Body(CircleShape(50), 500, 100, 1.0);
 
 	bodies.push_back(bigBall);
-	bodies.push_back(smallBall);
+	// bodies.push_back(smallBall);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -62,15 +62,17 @@ void Application::Update(float deltaTime)
 			bool isColliding = CollisionDetection::IsColliding(a, b, contact);
 			if(isColliding)
 			{
-				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 3, 0xFFFF00FF);
-				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 3, 0xFFFF00FF);
-				Graphics::DrawLine(
-					contact.start.x,
-					contact.start.y,
-					contact.start.x + contact.normal.x * 15,
-					contact.start.y + contact.normal.y * 15,
-					0xFFFF00FF
-				);
+				contact.ResolvePenetration();
+				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 5, 0xFFFF00FF);
+				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 5, 0xFF00FF00);
+				// Graphics::DrawLine(
+				// 	contact.start.x,
+				// 	contact.start.y,
+				// 	contact.start.x + contact.normal.x * 15,
+				// 	contact.start.y + contact.normal.y * 15,
+				// 	0xFFFF00FF
+				// );
+				Graphics::DrawLine(contact.start.x, contact.start.y, contact.end.x, contact.end.y, 0xFFFF00FF);
 				a->isColliding = true;
 				b->isColliding = true;
 			}
@@ -180,20 +182,24 @@ void Application::ProcessInput()
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 				if(event.button.button == SDL_BUTTON_LEFT && !leftMouseButtonDown)
 				{
-					leftMouseButtonDown = true;
-					float x, y;
-					SDL_GetMouseState(&x, &y);
-					mouseCursor.x = x;
-					mouseCursor.y = y;
+					// leftMouseButtonDown = true;
+					// float x, y;
+					// SDL_GetMouseState(&x, &y);
+					// mouseCursor.x = x;
+					// mouseCursor.y = y;
+					float x = event.motion.x;
+					float y = event.motion.y;
+					Body * smallBall = new Body(CircleShape(20), x * 2, y * 2, 1.0);
+					bodies.push_back(smallBall);
 				}
 				break;
 			case SDL_EVENT_MOUSE_MOTION:
 			{
 				// mouseCursor.x = event.motion.x;
 				// mouseCursor.y = event.motion.y;
-				Vec2 mousePosition{event.motion.x, event.motion.y};
-				mousePosition = mousePosition * Graphics::windowInfo.density;
-				bodies[0]->position = mousePosition;
+				// Vec2 mousePosition{event.motion.x, event.motion.y};
+				// mousePosition = mousePosition * Graphics::windowInfo.density;
+				// bodies[0]->position = mousePosition;
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_UP:

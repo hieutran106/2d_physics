@@ -2,27 +2,39 @@
 
 #include <SDL3/SDL.h>
 
-#include <stdexcept>
+#include <cmath> // Required for std::fabs
 
 Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mass(m)
 {
 	this->shape = shape.Clone();
-	if(mass == 0)
+	if(mass != 0)
 	{
-		throw std::invalid_argument("Mass cannot be zero.");
+		invMass = 1 / mass;
 	}
-	invMass = 1 / mass;
+	else
+	{
+		// simulate object that has infinite mass
+		invMass = 0.0;
+	}
 
 	this->I = shape.GetMomentOfInertia() * mass;
-	if(I == 0)
+	if(I != 0)
 	{
-		throw std::invalid_argument("Moment of Inertia cannot be zero.");
+		this->invI = 1 / this->I;
 	}
-	this->invI = 1 / this->I;
+	else
+	{
+		this->invI = 0.0;
+	}
 }
 Body::~Body()
 {
 	delete shape;
+}
+bool Body::IsStatic() const
+{
+	const float epsilon = 0.005f;
+	return std::fabs(invMass - 0.0) < epsilon;
 }
 void Body::Update(float deltaTime)
 {
@@ -39,6 +51,10 @@ void Body::Update(float deltaTime)
 
 void Body::IntegrateLinear(float dt)
 {
+	if(IsStatic())
+	{
+		return;
+	}
 	// The acceleration is calculated from the net-force divided by the mass
 	acceleration = sumForces * invMass;
 	// Integrate the acceleration to find the new velocity for the next step
@@ -55,6 +71,11 @@ void Body::IntegrateLinear(float dt)
 }
 void Body::IntegrateAngular(float dt)
 {
+	if(IsStatic())
+	{
+		return;
+	}
+
 	angularAcceleration = sumTorque * invI;
 	angularVelocity += angularAcceleration * dt;
 	rotation += angularVelocity * dt;
@@ -79,4 +100,13 @@ void Body::AddTorque(float torque)
 void Body::ClearTorque()
 {
 	sumTorque = 0;
+}
+
+void Body::ApplyImpulse(const Vec2 & J)
+{
+	if(IsStatic())
+	{
+		return;
+	}
+	velocity += J * invMass;
 }

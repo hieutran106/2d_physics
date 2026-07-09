@@ -33,6 +33,7 @@ struct Body
 	Body(const Shape & shape, float x, float y, float m);
 	~Body();
 
+	bool IsStatic() const;
 	void Update(float dt);
 
 	void IntegrateLinear(float dt);
@@ -42,4 +43,12 @@ struct Body
 
 	void AddTorque(float torque);
 	void ClearTorque();
+
+	/*
+	 * Impulse is an instantaneous change in velocity
+	 * inversely proportional to the mass of the object
+	 * Impulse J is the change in momentum: J = ∆P = m*∆v
+	 * Therefore, the change in velocity is: ∆v = J/m
+	 */
+	void ApplyImpulse(const Vec2 & J);
 };
