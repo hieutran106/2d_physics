@@ -24,6 +24,9 @@ struct Body
 	float I;
 	float invI;
 
+	// Coefficient of restitution
+	float restitution{1.0};
+
 	// Collision
 	bool isColliding = false;
 

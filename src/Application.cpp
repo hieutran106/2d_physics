@@ -32,11 +32,11 @@ void Application::Update(float deltaTime)
 		// body->AddForce(drag);
 
 		// // Apply weight force
-		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		// body->AddForce(weight);
+		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
+		body->AddForce(weight);
 		//
-		// Vec2 wind = Vec2(20.0 * PIXELS_PER_METER, 0);
-		// body->AddForce(wind);
+		Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
+		body->AddForce(wind);
 
 		// float torque = 400;
 		// body->AddTorque(torque);
@@ -62,16 +62,10 @@ void Application::Update(float deltaTime)
 			bool isColliding = CollisionDetection::IsColliding(a, b, contact);
 			if(isColliding)
 			{
-				contact.ResolvePenetration();
+				contact.ResolveCollision();
+
 				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 5, 0xFFFF00FF);
 				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 5, 0xFF00FF00);
-				// Graphics::DrawLine(
-				// 	contact.start.x,
-				// 	contact.start.y,
-				// 	contact.start.x + contact.normal.x * 15,
-				// 	contact.start.y + contact.normal.y * 15,
-				// 	0xFFFF00FF
-				// );
 				Graphics::DrawLine(contact.start.x, contact.start.y, contact.end.x, contact.end.y, 0xFFFF00FF);
 				a->isColliding = true;
 				b->isColliding = true;
@@ -84,7 +78,7 @@ void Application::Update(float deltaTime)
 	{
 		if(body->shape->GetType() == CIRCLE)
 		{
-			CircleShape * circle = (CircleShape *)body->shape;
+			CircleShape * circle = static_cast<CircleShape *>(body->shape);
 			float radius = circle->radius;
 			// Nasty hardcoded flip in velocity if it touches the limits of the screen window
 			if(body->position.x - radius < 0)
