@@ -2,13 +2,23 @@
 
 bool CollisionDetection::IsColliding(Body * a, Body * b, Contact & contact)
 {
-	bool aIsCircle = a->shape->GetType() == CIRCLE;
-	bool bIsCircle = b->shape->GetType() == CIRCLE;
+	ShapeType aShapeType = a->shape->GetType();
+	ShapeType bShapeType = b->shape->GetType();
+
+	bool aIsCircle = aShapeType == CIRCLE;
+	bool bIsCircle = bShapeType == CIRCLE;
+
+	bool aIsPolygon = aShapeType == POLYGON || aShapeType == BOX;
+	bool bIsPolygon = bShapeType == POLYGON || bShapeType == BOX;
 	if(aIsCircle && bIsCircle)
 	{
 		return IsCollidingCircleCircle(a, b, contact);
 	}
-	// TODO: Detect collision between other shapes
+	if(aIsPolygon && bIsPolygon)
+	{
+		return IsCollidingPolygonPolygon(a, b, contact);
+	}
+
 	return false;
 }
 bool CollisionDetection::IsCollidingCircleCircle(Body * a, Body * b, Contact & contact)
@@ -35,5 +45,11 @@ bool CollisionDetection::IsCollidingCircleCircle(Body * a, Body * b, Contact & c
 
 	contact.depth = (contact.end - contact.start).Magnitude();
 
+	return true;
+}
+bool CollisionDetection::IsCollidingPolygonPolygon(Body * a, Body * b, Contact & contact)
+{
+	PolygonShape * aPolygonShape = static_cast<PolygonShape *>(a->shape);
+	PolygonShape * bPolygonShape = static_cast<PolygonShape *>(b->shape);
 	return true;
 }

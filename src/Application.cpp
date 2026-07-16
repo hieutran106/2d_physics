@@ -10,11 +10,14 @@
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
-	Body * bigBall = new Body(CircleShape(200), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
-	// Body * smallBall = new Body(CircleShape(50), 500, 100, 1.0);
+	Body * boxA = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	Body * boxB = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 
-	bodies.push_back(bigBall);
-	// bodies.push_back(smallBall);
+	boxA->angularVelocity = 0.4;
+	boxB->angularVelocity = 0.1;
+
+	bodies.push_back(boxA);
+	bodies.push_back(boxB);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,11 +35,11 @@ void Application::Update(float deltaTime)
 		// body->AddForce(drag);
 
 		// // Apply weight force
-		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		body->AddForce(weight);
+		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
+		// body->AddForce(weight);
 		//
-		Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
-		body->AddForce(wind);
+		// Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
+		// body->AddForce(wind);
 
 		// float torque = 400;
 		// body->AddTorque(torque);
@@ -62,7 +65,7 @@ void Application::Update(float deltaTime)
 			bool isColliding = CollisionDetection::IsColliding(a, b, contact);
 			if(isColliding)
 			{
-				contact.ResolveCollision();
+				// contact.ResolveCollision();
 
 				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 5, 0xFFFF00FF);
 				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 5, 0xFF00FF00);
@@ -131,7 +134,7 @@ void Application::Render()
 		if(body->shape->GetType() == BOX)
 		{
 			BoxShape * boxShape = static_cast<BoxShape *>(body->shape);
-			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, 0xFFFFFFFF);
+			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, color);
 		}
 	}
 
@@ -191,9 +194,10 @@ void Application::ProcessInput()
 			{
 				// mouseCursor.x = event.motion.x;
 				// mouseCursor.y = event.motion.y;
-				// Vec2 mousePosition{event.motion.x, event.motion.y};
-				// mousePosition = mousePosition * Graphics::windowInfo.density;
-				// bodies[0]->position = mousePosition;
+				Vec2 mousePosition{event.motion.x, event.motion.y};
+				mousePosition = mousePosition * Graphics::windowInfo.density;
+				bodies[0]->position = mousePosition;
+
 				break;
 			}
 			case SDL_EVENT_MOUSE_BUTTON_UP:
