@@ -37,6 +37,7 @@ struct PolygonShape : public Shape
 	~PolygonShape() override = default;
 	ShapeType GetType() const override;
 	float GetMomentOfInertia() const override;
+	Vec2 EdgeAt(int index) const;
 	Shape * Clone() const override;
 	// Function to transform the polygon vertices from "local space" to "world space"
 	void UpdateVertices(float rotation, const Vec2 & position);

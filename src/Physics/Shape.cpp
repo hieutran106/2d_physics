@@ -28,6 +28,11 @@ float PolygonShape::GetMomentOfInertia() const
 {
 	return 0;
 }
+Vec2 PolygonShape::EdgeAt(int index) const
+{
+	int nextVertex = (index + 1) % worldVertices.size();
+	return worldVertices[nextVertex] - worldVertices[index];
+}
 
 Shape * PolygonShape::Clone() const
 {

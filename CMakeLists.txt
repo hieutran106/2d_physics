@@ -68,8 +68,13 @@ link_sdl3_xc(2d_physics)
 copy_asset(2d_physics)
 
 option(USE_SANITIZERS "Enable ASan and UBSan" OFF)
-if (USE_SANITIZERS)
-    message(STATUS "Building with Address and Undefined Behavior Sanitizers")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -fno-omit-frame-pointer")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address,undefined")
-endif ()
+
+function(enable_sanitizers target_name)
+    if (USE_SANITIZERS)
+        message(STATUS "Enabling Address and Undefined Behavior Sanitizers for ${target_name}")
+        target_compile_options(${target_name} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+        target_link_options(${target_name} PRIVATE -fsanitize=address,undefined)
+    endif ()
+endfunction()
+
+enable_sanitizers(2d_physics)
