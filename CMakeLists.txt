@@ -61,13 +61,8 @@ function(get_cpp_sources target_name result)
     endforeach ()
 endfunction()
 
-get_cpp_sources(2d_physics SOURCES)
-add_executable(2d_physics ${SOURCES})
-link_sdl3_gfx(2d_physics)
-link_sdl3_xc(2d_physics)
-copy_asset(2d_physics)
-
 option(USE_SANITIZERS "Enable ASan and UBSan" OFF)
+option(BUILD_TESTS "Build unit tests" OFF)
 
 function(enable_sanitizers target_name)
     if (USE_SANITIZERS)
@@ -77,4 +72,35 @@ function(enable_sanitizers target_name)
     endif ()
 endfunction()
 
+# --- Main executable ---
+file(GLOB_RECURSE PHYSICS_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/Physics/*.cpp")
+file(GLOB SDL_WINDOW_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
+add_executable(2d_physics ${SDL_WINDOW_SOURCES} ${PHYSICS_SOURCES})
+link_sdl3_gfx(2d_physics)
+link_sdl3_xc(2d_physics)
+copy_asset(2d_physics)
 enable_sanitizers(2d_physics)
+
+# --- Unit tests ---
+# test option (defaults to OFF, so CI/users opt in explicitly)
+option(BUILD_TESTS "Build unit tests" OFF)
+
+if (BUILD_TESTS)
+    include(FetchContent)
+    FetchContent_Declare(
+            Catch2
+            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+            GIT_TAG v3.15.3
+    )
+    FetchContent_MakeAvailable(Catch2)
+
+    file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/tests/*.cpp")
+    add_executable(physics_tests ${TEST_SOURCES} ${PHYSICS_SOURCES})
+    target_include_directories(physics_tests PRIVATE "${CMAKE_SOURCE_DIR}/src")
+    target_link_libraries(physics_tests PRIVATE Catch2::Catch2WithMain)
+
+    include(CTest)
+    include(Catch)
+    catch_discover_tests(physics_tests)
+endif ()
+
