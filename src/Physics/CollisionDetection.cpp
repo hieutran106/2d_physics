@@ -60,7 +60,7 @@ float FindMinSeparation(const PolygonShape & a, const PolygonShape & b)
 		float minProjection = std::numeric_limits<float>::max();
 		for(int j = 0; j < b.worldVertices.size(); j++)
 		{
-			Vec2 vb = b.worldVertices[i];
+			Vec2 vb = b.worldVertices[j];
 			// Project the vertex b (vb) onto the normal axis
 			auto projection = (vb - va).Dot(normal);
 			minProjection = std::min(minProjection, projection);
@@ -75,11 +75,11 @@ bool CollisionDetection::IsCollidingPolygonPolygon(Body * a, Body * b, Contact &
 	PolygonShape * aPolygonShape = static_cast<PolygonShape *>(a->shape);
 	PolygonShape * bPolygonShape = static_cast<PolygonShape *>(b->shape);
 
-	if(FindMinSeparation(*aPolygonShape, *bPolygonShape) >= 0)
+	if(aPolygonShape->FindMinSeparation(*bPolygonShape) >= 0)
 	{
 		return false;
 	}
-	if(FindMinSeparation(*bPolygonShape, *aPolygonShape) >= 0)
+	if(bPolygonShape->FindMinSeparation(*aPolygonShape) >= 0)
 	{
 		return false;
 	}

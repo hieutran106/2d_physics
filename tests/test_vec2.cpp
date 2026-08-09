@@ -12,22 +12,22 @@ TEST_CASE("Collision Detection - IsCollidingPolygonPolygon", "[Vec2]")
 	Body * boxA = new Body(BoxShape(200, 200), 0, 0, 1.0);
 	BoxShape * shapeA = static_cast<BoxShape *>(boxA->shape);
 	shapeA->worldVertices.clear();
-	shapeA->worldVertices.emplace_back(676, 511);
-	shapeA->worldVertices.emplace_back(771, 541);
-	shapeA->worldVertices.emplace_back(741, 636);
-	shapeA->worldVertices.emplace_back(646, 606);
+	shapeA->worldVertices.emplace_back(630, 340);
+	shapeA->worldVertices.emplace_back(829, 360);
+	shapeA->worldVertices.emplace_back(809, 559);
+	shapeA->worldVertices.emplace_back(610, 539);
 
-	Body * boxB = new Body(BoxShape(200, 200), 0, 0, 1.0);
-	BoxShape * shapeB = static_cast<BoxShape *>(boxB->shape);
-	shapeB->worldVertices.clear();
-	shapeB->worldVertices.emplace_back(630, 340);
-	shapeB->worldVertices.emplace_back(829, 360);
-	shapeB->worldVertices.emplace_back(809, 559);
-	shapeB->worldVertices.emplace_back(610, 539);
+	Body * boxC = new Body(BoxShape(200, 200), 0, 0, 1.0);
+	BoxShape * shapeC = static_cast<BoxShape *>(boxC->shape);
+	shapeC->worldVertices.clear();
+	shapeC->worldVertices.emplace_back(676, 511);
+	shapeC->worldVertices.emplace_back(771, 541);
+	shapeC->worldVertices.emplace_back(741, 636);
+	shapeC->worldVertices.emplace_back(646, 606);
 
 	Contact contact;
-	bool actual = CollisionDetection::IsColliding(boxA, boxB, contact);
-	REQUIRE(actual == false);
+	bool actual = CollisionDetection::IsColliding(boxA, boxC, contact);
+	REQUIRE(actual == true);
 }
 
 TEST_CASE("Example 1", "[Vec2]")

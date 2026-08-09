@@ -33,6 +33,26 @@ Vec2 PolygonShape::EdgeAt(int index) const
 	int nextVertex = (index + 1) % worldVertices.size();
 	return worldVertices[nextVertex] - worldVertices[index];
 }
+float PolygonShape::FindMinSeparation(const PolygonShape & other) const
+{
+	float separation = std::numeric_limits<float>::lowest();
+	for(int i = 0; i < worldVertices.size(); i++)
+	{
+		Vec2 va = worldVertices[i];
+		Vec2 normal = EdgeAt(i).Normal();
+
+		float minProjection = std::numeric_limits<float>::max();
+		for(int j = 0; j < other.worldVertices.size(); j++)
+		{
+			Vec2 vb = other.worldVertices[j];
+			// Project the vertex b (vb) onto the normal axis
+			auto projection = (vb - va).Dot(normal);
+			minProjection = std::min(minProjection, projection);
+		}
+		separation = std::max(separation, minProjection);
+	}
+	return separation;
+}
 
 Shape * PolygonShape::Clone() const
 {
