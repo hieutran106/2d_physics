@@ -38,7 +38,21 @@ struct PolygonShape : public Shape
 	ShapeType GetType() const override;
 	float GetMomentOfInertia() const override;
 	Vec2 EdgeAt(int index) const;
-	float FindMinSeparation(const PolygonShape & other) const;
+
+	/**
+	 * @brief Finds the minimum separation between this polygon and another using the Separating Axis Theorem (SAT).
+	 *
+	 * Iterates over each edge of this polygon, computes its outward normal, and projects all vertices
+	 * of the other polygon onto that normal to find the minimum separation distance. Tracks the edge
+	 * axis and vertex that produce the least negative (or most positive) separation.
+	 *
+	 * @param[in] other The other polygon shape to test separation against.
+	 * @param[out] axis The edge of this polygon corresponding to the axis of minimum separation.
+	 * @param[out] point The vertex on the other polygon that is closest along the axis of minimum separation.
+	 * @return The minimum separation distance. A negative value indicates overlap; a positive value
+	 *         indicates the polygons are separated.
+	 */
+	float FindMinSeparation(const PolygonShape & other, Vec2 & axis, Vec2 & point) const;
 	Shape * Clone() const override;
 	// Function to transform the polygon vertices from "local space" to "world space"
 	void UpdateVertices(float rotation, const Vec2 & position);

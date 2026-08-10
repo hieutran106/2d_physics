@@ -49,39 +49,39 @@ bool CollisionDetection::IsCollidingCircleCircle(Body * a, Body * b, Contact & c
 	return true;
 }
 
-float FindMinSeparation(const PolygonShape & a, const PolygonShape & b)
-{
-	float separation = std::numeric_limits<float>::lowest();
-	for(int i = 0; i < a.worldVertices.size(); i++)
-	{
-		Vec2 va = a.worldVertices[i];
-		Vec2 normal = a.EdgeAt(i).Normal();
-
-		float minProjection = std::numeric_limits<float>::max();
-		for(int j = 0; j < b.worldVertices.size(); j++)
-		{
-			Vec2 vb = b.worldVertices[j];
-			// Project the vertex b (vb) onto the normal axis
-			auto projection = (vb - va).Dot(normal);
-			minProjection = std::min(minProjection, projection);
-		}
-		separation = std::max(separation, minProjection);
-	}
-	return separation;
-}
-
 bool CollisionDetection::IsCollidingPolygonPolygon(Body * a, Body * b, Contact & contact)
 {
 	PolygonShape * aPolygonShape = static_cast<PolygonShape *>(a->shape);
 	PolygonShape * bPolygonShape = static_cast<PolygonShape *>(b->shape);
 
-	if(aPolygonShape->FindMinSeparation(*bPolygonShape) >= 0)
+	Vec2 aAxis, bAxis;
+	Vec2 aPoint, bPoint;
+	float abSeparation = aPolygonShape->FindMinSeparation(*bPolygonShape, aAxis, aPoint);
+	if(abSeparation >= 0)
 	{
 		return false;
 	}
-	if(bPolygonShape->FindMinSeparation(*aPolygonShape) >= 0)
+	float baSeparation = bPolygonShape->FindMinSeparation(*aPolygonShape, bAxis, bPoint);
+	if(baSeparation >= 0)
 	{
 		return false;
+	}
+	// Population the contact information
+	contact.a = a;
+	contact.b = b;
+	if(abSeparation > baSeparation)
+	{
+		contact.depth = -abSeparation;
+		contact.normal = aAxis.Normal();
+		contact.start = aPoint;
+		contact.end = aPoint + contact.normal * contact.depth;
+	}
+	else
+	{
+		contact.depth = -baSeparation;
+		contact.normal = -bAxis.Normal();
+		contact.start = bPoint - contact.normal * contact.depth;
+		contact.end = bPoint;
 	}
 
 	return true;

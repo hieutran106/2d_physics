@@ -3,6 +3,7 @@
 #include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
+#include <format>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup function (executed once in the beginning of the simulation)
@@ -13,8 +14,10 @@ void Application::Setup()
 	Body * boxA = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 	Body * boxB = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 
-	boxA->angularVelocity = 0.4;
-	boxB->angularVelocity = 0.1;
+	// boxA->angularVelocity = 0.4;
+	// boxB->angularVelocity = 0.1;
+
+	boxA->rotation = 2.3;
 
 	bodies.push_back(boxA);
 	bodies.push_back(boxB);
@@ -68,7 +71,7 @@ void Application::Update(float deltaTime)
 				// contact.ResolveCollision();
 
 				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 5, 0xFFFF00FF);
-				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 5, 0xFF00FF00);
+				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 10, 0xFF00FF00);
 				Graphics::DrawLine(contact.start.x, contact.start.y, contact.end.x, contact.end.y, 0xFFFF00FF);
 				a->isColliding = true;
 				b->isColliding = true;
@@ -149,31 +152,52 @@ void Application::ProcessInput()
 	SDL_Event event;
 	while(SDL_PollEvent(&event))
 	{
+		SDL_Keycode key = event.key.key;
 		switch(event.type)
 		{
 			case SDL_EVENT_QUIT:
 				mRunning = false;
 				break;
 			case SDL_EVENT_KEY_DOWN:
-				if(event.key.key == SDLK_ESCAPE)
+				if(key == SDLK_ESCAPE)
 					mRunning = false;
-				if(event.key.key == SDLK_UP)
+				if(key == SDLK_P)
+				{
+					// TODO: Print world vertices of all polygon body
+					for(int i = 0; i < bodies.size(); i++)
+					{
+						Body * body = bodies[i];
+						ShapeType shapeType = body->shape->GetType();
+						if(shapeType == POLYGON || shapeType == BOX)
+						{
+							SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Bodies[%d]", i);
+							PolygonShape * polygonShape = static_cast<PolygonShape *>(body->shape);
+							for(int j = 0; j < polygonShape->worldVertices.size(); j++)
+							{
+								Vec2 vertex = polygonShape->worldVertices[j];
+								std::string out = std::format("\tVertex[{}]: ({:.4f},{:.4f})", j, vertex.x, vertex.y);
+								SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", out.c_str());
+							}
+						}
+					}
+				}
+				if(key == SDLK_UP)
 					pushForce.y = -50 * PIXELS_PER_METER;
-				if(event.key.key == SDLK_RIGHT)
+				if(key == SDLK_RIGHT)
 					pushForce.x = 50 * PIXELS_PER_METER;
-				if(event.key.key == SDLK_DOWN)
+				if(key == SDLK_DOWN)
 					pushForce.y = 50 * PIXELS_PER_METER;
-				if(event.key.key == SDLK_LEFT)
+				if(key == SDLK_LEFT)
 					pushForce.x = -50 * PIXELS_PER_METER;
 				break;
 			case SDL_EVENT_KEY_UP:
-				if(event.key.key == SDLK_UP)
+				if(key == SDLK_UP)
 					pushForce.y = 0;
-				if(event.key.key == SDLK_RIGHT)
+				if(key == SDLK_RIGHT)
 					pushForce.x = 0;
-				if(event.key.key == SDLK_DOWN)
+				if(key == SDLK_DOWN)
 					pushForce.y = 0;
-				if(event.key.key == SDLK_LEFT)
+				if(key == SDLK_LEFT)
 					pushForce.x = 0;
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
