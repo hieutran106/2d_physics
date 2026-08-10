@@ -51,16 +51,6 @@ function(copy_asset target_name)
 
 endfunction()
 
-function(get_cpp_sources target_name result)
-    file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-    set(${result} ${SOURCES} PARENT_SCOPE)
-    # debug
-    message(STATUS "get_cpp_sources:")
-    foreach (src IN LISTS SOURCES)
-        message(STATUS "    ${src}")
-    endforeach ()
-endfunction()
-
 option(USE_SANITIZERS "Enable ASan and UBSan" OFF)
 option(BUILD_TESTS "Build unit tests" OFF)
 

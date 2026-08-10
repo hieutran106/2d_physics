@@ -80,6 +80,19 @@ float Vec2::Cross(const Vec2 & v) const
 	return (x * v.y) - (y * v.x);
 }
 
+bool Vec2::almost_equal(float a, float b, float maxRelDiff)
+{
+	float diff = std::abs(a - b);
+
+	if(diff <= 1e-6f)
+	{
+		return true;
+	}
+
+	float largest = std::max(std::abs(a), std::abs(b));
+	return diff <= largest * maxRelDiff;
+}
+
 Vec2 & Vec2::operator=(const Vec2 & v)
 {
 	x = v.x;
@@ -89,7 +102,7 @@ Vec2 & Vec2::operator=(const Vec2 & v)
 
 bool Vec2::operator==(const Vec2 & v) const
 {
-	return x == v.x && y == v.y;
+	return almost_equal(x, v.x) && almost_equal(y, v.y);
 }
 
 bool Vec2::operator!=(const Vec2 & v) const

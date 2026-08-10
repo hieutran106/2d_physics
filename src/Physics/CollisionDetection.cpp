@@ -1,5 +1,4 @@
 #include "CollisionDetection.h"
-#include <limits>
 
 bool CollisionDetection::IsColliding(Body * a, Body * b, Contact & contact)
 {
@@ -51,37 +50,40 @@ bool CollisionDetection::IsCollidingCircleCircle(Body * a, Body * b, Contact & c
 
 bool CollisionDetection::IsCollidingPolygonPolygon(Body * a, Body * b, Contact & contact)
 {
-	PolygonShape * aPolygonShape = static_cast<PolygonShape *>(a->shape);
-	PolygonShape * bPolygonShape = static_cast<PolygonShape *>(b->shape);
+	const auto * shapeA = static_cast<PolygonShape *>(a->shape);
+	const auto * shapeB = static_cast<PolygonShape *>(b->shape);
 
-	Vec2 aAxis, bAxis;
-	Vec2 aPoint, bPoint;
-	float abSeparation = aPolygonShape->FindMinSeparation(*bPolygonShape, aAxis, aPoint);
-	if(abSeparation >= 0)
-	{
+	// SAT: find the axis of least penetration from each polygon's edges
+	Vec2 edgeNormalA, penetrationPointA;
+	// testing A's edges against B's vertices. The returned point is the vertex of B that penetrates deepest into A
+	float separationAB = shapeA->FindMinSeparation(*shapeB, edgeNormalA, penetrationPointA);
+	if(separationAB >= 0)
 		return false;
-	}
-	float baSeparation = bPolygonShape->FindMinSeparation(*aPolygonShape, bAxis, bPoint);
-	if(baSeparation >= 0)
-	{
+
+	Vec2 edgeNormalB, penetrationPointB;
+	float separationBA = shapeB->FindMinSeparation(*shapeA, edgeNormalB, penetrationPointB);
+	if(separationBA >= 0)
 		return false;
-	}
-	// Population the contact information
+
+	// Both separations are negative — pick the axis with least penetration	(closest to 0)
 	contact.a = a;
 	contact.b = b;
-	if(abSeparation > baSeparation)
+
+	if(separationAB > separationBA)
 	{
-		contact.depth = -abSeparation;
-		contact.normal = aAxis.Normal();
-		contact.start = aPoint;
-		contact.end = aPoint + contact.normal * contact.depth;
+		// A's edge is the reference face
+		contact.normal = edgeNormalA.Normal();
+		contact.depth = -separationAB;
+		contact.start = penetrationPointA;
+		contact.end = penetrationPointA + contact.normal * contact.depth;
 	}
 	else
 	{
-		contact.depth = -baSeparation;
-		contact.normal = -bAxis.Normal();
-		contact.start = bPoint - contact.normal * contact.depth;
-		contact.end = bPoint;
+		// B's edge is the reference face — flip normal to maintain A→B convention
+		contact.normal = -edgeNormalB.Normal();
+		contact.depth = -separationBA;
+		contact.end = penetrationPointB;
+		contact.start = penetrationPointB - contact.normal * contact.depth;
 	}
 
 	return true;

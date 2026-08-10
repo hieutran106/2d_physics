@@ -8,11 +8,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Setup function (executed once in the beginning of the simulation)
 ///////////////////////////////////////////////////////////////////////////////
-void Application::Setup()
+
+void Setup_TwoBox(std::vector<Body *> bodies)
 {
-	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
 	Body * boxA = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-	Body * boxB = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	Body * boxB = new Body(BoxShape(400, 400), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 
 	// boxA->angularVelocity = 0.4;
 	// boxB->angularVelocity = 0.1;
@@ -21,6 +21,16 @@ void Application::Setup()
 
 	bodies.push_back(boxA);
 	bodies.push_back(boxB);
+}
+
+void Setup_Cirlce(std::vector<Body *> bodies)
+{
+	Body * circleA = new Body(CircleShape(100), 800, 800, 1.0);
+	Body * circleB = new Body(CircleShape(100), 800, 800, 1.0);
+}
+void Application::Setup()
+{
+	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,9 +80,14 @@ void Application::Update(float deltaTime)
 			{
 				// contact.ResolveCollision();
 
-				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 5, 0xFFFF00FF);
-				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 10, 0xFF00FF00);
-				Graphics::DrawLine(contact.start.x, contact.start.y, contact.end.x, contact.end.y, 0xFFFF00FF);
+				Uint32 startColor = 0xFFFF00FF;
+				Uint32 endColor = 0xFF00FF00; // green
+				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 3, startColor);
+				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 10, endColor);
+				// Line from start
+				Vec2 lineEnd(contact.start.x + contact.normal.x * 15, contact.start.y + contact.normal.y * 15);
+
+				Graphics::DrawLine(contact.start.x, contact.start.y, lineEnd.x, lineEnd.y, 0xFFFF00FF);
 				a->isColliding = true;
 				b->isColliding = true;
 			}
@@ -179,6 +194,13 @@ void Application::ProcessInput()
 								SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "%s", out.c_str());
 							}
 						}
+					}
+					// Run collision detection and print
+					Contact contact;
+					bool collide = CollisionDetection::IsColliding(bodies[0], bodies[1], contact);
+					if(collide)
+					{
+						SDL_Log("Contact start (%.4f, %.4f)", contact.start.x, contact.start.y);
 					}
 				}
 				if(key == SDLK_UP)
