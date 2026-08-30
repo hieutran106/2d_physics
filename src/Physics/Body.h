@@ -6,6 +6,7 @@ struct Body
 {
 	// Linear motion
 	Vec2 position;
+	// Linear velocity
 	Vec2 velocity;
 	Vec2 acceleration;
 
@@ -15,7 +16,7 @@ struct Body
 	float angularAcceleration{};
 
 	// Forces and Torque
-	Vec2 sumForces;
+	Vec2  sumForces;
 	float sumTorque = 0;
 
 	// Mass & Moment of Inertia
@@ -25,15 +26,15 @@ struct Body
 	float invI;
 
 	// Coefficient of restitution
-	float restitution{1.0};
+	float restitution{ 1.0 };
 
 	// Collision
 	bool isColliding = false;
 
 	// A pointer to the geometry
-	Shape * shape = nullptr;
+	Shape* shape = nullptr;
 
-	Body(const Shape & shape, float x, float y, float m);
+	Body(const Shape& shape, float x, float y, float m);
 	~Body();
 
 	bool IsStatic() const;
@@ -41,7 +42,7 @@ struct Body
 
 	void IntegrateLinear(float dt);
 	void IntegrateAngular(float dt);
-	void AddForce(const Vec2 & force);
+	void AddForce(const Vec2& force);
 	void ClearForces();
 
 	void AddTorque(float torque);
@@ -53,5 +54,6 @@ struct Body
 	 * Impulse J is the change in momentum: J = ∆P = m*∆v
 	 * Therefore, the change in velocity is: ∆v = J/m
 	 */
-	void ApplyImpulse(const Vec2 & J);
+	void ApplyImpulse(const Vec2& J);
+	void ApplyImpulse(const Vec2& J, const Vec2& r);
 };

@@ -4,10 +4,12 @@
 
 #include <cmath> // Required for std::fabs
 
-Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mass(m)
+Body::Body(const Shape& shape, float x, float y, float m)
+	: position(x, y)
+	, mass(m)
 {
 	this->shape = shape.Clone();
-	if(mass != 0)
+	if (mass != 0)
 	{
 		invMass = 1 / mass;
 	}
@@ -18,7 +20,7 @@ Body::Body(const Shape & shape, float x, float y, float m) : position(x, y), mas
 	}
 
 	this->I = shape.GetMomentOfInertia() * mass;
-	if(I != 0)
+	if (I != 0)
 	{
 		this->invI = 1 / this->I;
 	}
@@ -42,16 +44,16 @@ void Body::Update(float deltaTime)
 	IntegrateAngular(deltaTime);
 	auto shapeType = shape->GetType();
 	bool isPolygon = shapeType == POLYGON || shapeType == BOX;
-	if(isPolygon)
+	if (isPolygon)
 	{
-		PolygonShape * polygonShape = static_cast<PolygonShape *>(shape);
+		PolygonShape* polygonShape = static_cast<PolygonShape*>(shape);
 		polygonShape->UpdateVertices(rotation, position);
 	}
 }
 
 void Body::IntegrateLinear(float dt)
 {
-	if(IsStatic())
+	if (IsStatic())
 	{
 		return;
 	}
@@ -60,7 +62,7 @@ void Body::IntegrateLinear(float dt)
 	// Integrate the acceleration to find the new velocity for the next step
 	velocity += acceleration * dt;
 	// Prevent moving slightly due to friction
-	if(velocity.MagnitudeSquared() < 5)
+	if (velocity.MagnitudeSquared() < 5)
 	{
 		velocity.x = 0.0;
 		velocity.y = 0.0;
@@ -71,7 +73,7 @@ void Body::IntegrateLinear(float dt)
 }
 void Body::IntegrateAngular(float dt)
 {
-	if(IsStatic())
+	if (IsStatic())
 	{
 		return;
 	}
@@ -82,7 +84,7 @@ void Body::IntegrateAngular(float dt)
 	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity, rotation);
 	ClearTorque();
 }
-void Body::AddForce(const Vec2 & force)
+void Body::AddForce(const Vec2& force)
 {
 	sumForces += force;
 }
@@ -102,11 +104,21 @@ void Body::ClearTorque()
 	sumTorque = 0;
 }
 
-void Body::ApplyImpulse(const Vec2 & J)
+void Body::ApplyImpulse(const Vec2& J)
 {
-	if(IsStatic())
+	if (IsStatic())
 	{
 		return;
 	}
 	velocity += J * invMass;
+}
+
+void Body::ApplyImpulse(const Vec2& J, const Vec2& r)
+{
+	if (IsStatic())
+	{
+		return;
+	}
+	velocity += J * invMass;
+	angularVelocity += r.Cross(J) * invI;
 }

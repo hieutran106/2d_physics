@@ -2,7 +2,7 @@
 
 void Contact::ResolvePenetration()
 {
-	if(a->IsStatic() && b->IsStatic())
+	if (a->IsStatic() && b->IsStatic())
 	{
 		return;
 	}
@@ -18,15 +18,23 @@ void Contact::ResolveCollision()
 	ResolvePenetration();
 	float e = std::min(a->restitution, b->restitution);
 
-	const Vec2 vrel = a->velocity - b->velocity;
+	Vec2 ra = end - a->position;
+	Vec2 rb = start - b->position;
+
+	Vec2       va = a->velocity + Vec2(-a->angularVelocity * ra.y, a->angularVelocity * ra.x);
+	Vec2       vb = b->velocity + Vec2(-b->angularVelocity * rb.y, b->angularVelocity * rb.x);
+	const Vec2 vrel = va - vb;
+
+	// Calculate the relative velocity along the normal collision vector
 	float vrelDotNormal = vrel.Dot(normal);
 
 	// Calculate the collision impulse
 	const Vec2 impulseDirection = normal;
-	float impulseMagnitude = -(1 + e) * vrelDotNormal / (a->invMass + b->invMass);
+	float      impulseMagnitude =
+		-(1 + e) * vrelDotNormal / (a->invMass + b->invMass + std::pow(ra.Cross(normal), 2) * a->invI + std::pow(rb.Cross(normal), 2) * b->invI);
 	Vec2 J = impulseDirection * impulseMagnitude;
 
 	// Calculate velocity after collision
-	a->ApplyImpulse(J);
-	b->ApplyImpulse(-J);
+	a->ApplyImpulse(J, ra);
+	b->ApplyImpulse(-J, rb);
 }

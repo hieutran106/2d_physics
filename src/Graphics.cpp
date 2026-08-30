@@ -4,9 +4,9 @@
 #include "SDLHelper.h"
 #include <iostream>
 
-SDL_Window * Graphics::window = nullptr;
-SDL_Renderer * Graphics::renderer = nullptr;
-WindowInfo Graphics::windowInfo;
+SDL_Window*   Graphics::window = nullptr;
+SDL_Renderer* Graphics::renderer = nullptr;
+WindowInfo    Graphics::windowInfo;
 
 int Graphics::Width()
 {
@@ -18,24 +18,24 @@ int Graphics::Height()
 	return windowInfo.fbHeight;
 }
 
-bool Graphics::InitializeWindow(const char * title, int width, int height)
+bool Graphics::InitializeWindow(const char* title, int width, int height)
 {
-	if(!SDL_Init(SDL_INIT_VIDEO))
+	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fail to init SDL");
 		return false;
 	}
 	SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
-	int nativeWindowWidth = 0;
-	int nativeWindowHeight = 0;
-	if(SDLHelper::IsIOS())
+	int             nativeWindowWidth = 0;
+	int             nativeWindowHeight = 0;
+	if (SDLHelper::IsIOS())
 	{
 		windowFlags = windowFlags | SDL_WINDOW_FULLSCREEN;
 	}
 	else
 	{
-		SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
-		const SDL_DisplayMode * mode = SDL_GetCurrentDisplayMode(primaryDisplay);
+		SDL_DisplayID          primaryDisplay = SDL_GetPrimaryDisplay();
+		const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(primaryDisplay);
 		SDL_Log("Screen resolution: %d x %d", mode->w, mode->h);
 		nativeWindowHeight = 4 * mode->h / 5;
 		// keep aspect ratio
@@ -46,7 +46,7 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 
 	window = SDL_CreateWindow(title, nativeWindowWidth, nativeWindowHeight, windowFlags);
 
-	if(!window)
+	if (!window)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Window");
 		return false;
@@ -54,16 +54,14 @@ bool Graphics::InitializeWindow(const char * title, int width, int height)
 	SDLHelper::LogSDLWindowFlags(window);
 
 	renderer = SDL_CreateRenderer(window, nullptr);
-	if(!renderer)
+	if (!renderer)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Renderer: %s", SDL_GetError());
 		return false;
 	}
 	SDL_PropertiesID props = SDL_GetRendererProperties(renderer);
-	SDL_PixelFormat * format = static_cast<SDL_PixelFormat *>(
-		SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr)
-	);
-	if(format)
+	SDL_PixelFormat* format = static_cast<SDL_PixelFormat*>(SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr));
+	if (format)
 	{
 		SDL_Log("SDL_Renderer PixelFormat: %s", SDL_GetPixelFormatName(*format));
 	}
@@ -111,28 +109,26 @@ void Graphics::DrawFillRect(int x, int y, int width, int height, Uint32 color)
 	boxColor(renderer, x - width / 2.0, y - height / 2.0, x + width / 2.0, y + height / 2.0, color);
 }
 
-void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2> & vertices, Uint32 color)
+void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color)
 {
-	for(int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < vertices.size(); i++)
 	{
 		int currIndex = i;
 		int nextIndex = (i + 1) % vertices.size();
-		lineColor(
-			renderer, vertices[currIndex].x, vertices[currIndex].y, vertices[nextIndex].x, vertices[nextIndex].y, color
-		);
+		lineColor(renderer, vertices[currIndex].x, vertices[currIndex].y, vertices[nextIndex].x, vertices[nextIndex].y, color);
 	}
 	filledCircleColor(renderer, x, y, 1, color);
 }
 
-void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2> & vertices, Uint32 color)
+void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color)
 {
 	std::vector<float> vx;
 	std::vector<float> vy;
-	for(int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < vertices.size(); i++)
 	{
 		vx.push_back(static_cast<int>(vertices[i].x));
 	}
-	for(int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < vertices.size(); i++)
 	{
 		vy.push_back(static_cast<int>(vertices[i].y));
 	}
@@ -140,12 +136,10 @@ void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2> & vertices,
 	filledCircleColor(renderer, x, y, 1, 0xFF000000);
 }
 
-void Graphics::DrawTexture(int x, int y, int width, int height, float rotation, SDL_Texture * texture)
+void Graphics::DrawTexture(int x, int y, int width, int height, float rotation, SDL_Texture* texture)
 {
-	SDL_FRect dstRect = {
-		x - (width / 2.0f), y - (height / 2.0f), static_cast<float>(width), static_cast<float>(height)
-	};
-	float rotationDeg = rotation * 57.2958;
+	SDL_FRect dstRect = { x - (width / 2.0f), y - (height / 2.0f), static_cast<float>(width), static_cast<float>(height) };
+	float     rotationDeg = rotation * 57.2958;
 	SDL_RenderTextureRotated(renderer, texture, nullptr, &dstRect, rotationDeg, nullptr, SDL_FLIP_NONE);
 }
 

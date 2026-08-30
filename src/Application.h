@@ -6,17 +6,17 @@
 class Application
 {
 private:
-	bool mRunning = false;
-	std::vector<Body *> bodies;
-	Vec2 pushForce;
+	bool               mRunning = false;
+	std::vector<Body*> bodies;
+	Vec2               pushForce;
 
 	// Mouse for impulse
 	Vec2 mouseCursor = Vec2(0, 0);
 	bool leftMouseButtonDown = false;
 
 	// For soft body
-	float k = 1500;
-	float restLength = 200;
+	float     k = 1500;
+	float     restLength = 200;
 	const int NUM_PARTICLES = 4;
 
 public:
@@ -24,7 +24,7 @@ public:
 	~Application() = default;
 
 	// Public read-only access point
-	const bool & running = mRunning;
+	const bool& running = mRunning;
 
 	void Setup();
 	void ProcessInput();
