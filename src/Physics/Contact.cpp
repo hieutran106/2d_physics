@@ -26,6 +26,7 @@ void Contact::ResolveCollision()
 	float impulseMagnitude = -(1 + e) * vrelDotNormal / (a->invMass + b->invMass);
 	Vec2 J = impulseDirection * impulseMagnitude;
 
+	// Calculate velocity after collision
 	a->ApplyImpulse(J);
 	b->ApplyImpulse(-J);
 }

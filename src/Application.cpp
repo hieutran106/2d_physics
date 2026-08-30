@@ -9,18 +9,19 @@
 // Setup function (executed once in the beginning of the simulation)
 ///////////////////////////////////////////////////////////////////////////////
 
-void Setup_TwoBox(std::vector<Body *> bodies)
+void Setup_TwoBox(std::vector<Body *> & bodies)
 {
-	Body * boxA = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-	Body * boxB = new Body(BoxShape(400, 400), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	Body * floor =
+		new Body(BoxShape(Graphics::Width() - 50, 50), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
+	floor->restitution = 0.2;
+	bodies.push_back(floor);
 
-	// boxA->angularVelocity = 0.4;
-	// boxB->angularVelocity = 0.1;
+	// Add a static box so other boxes can collide
+	Body * bigBox = new Body(BoxShape(200, 200), Graphics::Width() / 2.0, Graphics::Height() / 2.0, 0.0);
+	bigBox->rotation = 1.4;
+	bigBox->restitution = 0.5;
 
-	boxA->rotation = 2.3;
-
-	bodies.push_back(boxA);
-	bodies.push_back(boxB);
+	bodies.push_back(bigBox);
 }
 
 void Setup_Cirlce(std::vector<Body *> bodies)
@@ -31,6 +32,7 @@ void Setup_Cirlce(std::vector<Body *> bodies)
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
+	Setup_TwoBox(bodies);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,9 +49,9 @@ void Application::Update(float deltaTime)
 		// Vec2 drag = Force::GenerateDragForce(*body, 0.002);
 		// body->AddForce(drag);
 
-		// // Apply weight force
-		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		// body->AddForce(weight);
+		// Apply weight force
+		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
+		body->AddForce(weight);
 		//
 		// Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
 		// body->AddForce(wind);
@@ -223,39 +225,43 @@ void Application::ProcessInput()
 					pushForce.x = 0;
 				break;
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
-				if(event.button.button == SDL_BUTTON_LEFT && !leftMouseButtonDown)
-				{
-					// leftMouseButtonDown = true;
-					// float x, y;
-					// SDL_GetMouseState(&x, &y);
-					// mouseCursor.x = x;
-					// mouseCursor.y = y;
-					float x = event.motion.x;
-					float y = event.motion.y;
-					Body * smallBall = new Body(CircleShape(20), x * 2, y * 2, 1.0);
-					bodies.push_back(smallBall);
-				}
-				break;
-			case SDL_EVENT_MOUSE_MOTION:
 			{
-				// mouseCursor.x = event.motion.x;
-				// mouseCursor.y = event.motion.y;
-				Vec2 mousePosition{event.motion.x, event.motion.y};
-				mousePosition = mousePosition * Graphics::windowInfo.density;
-				bodies[0]->position = mousePosition;
-
+				float x = event.motion.x;
+				float y = event.motion.y;
+				Body * box = new Body(BoxShape(50, 50), x * 2, y * 2, 1.0);
+				bodies.push_back(box);
 				break;
 			}
-			case SDL_EVENT_MOUSE_BUTTON_UP:
-				if(leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT)
-				{
-					leftMouseButtonDown = false;
-					Body * last = bodies[bodies.size() - 1];
-					Vec2 impulseDirection = (last->position - mouseCursor).UnitVector();
-					float impulseMagnitude = (last->position - mouseCursor).Magnitude() * 5.0;
-					last->velocity = impulseDirection * impulseMagnitude;
-				}
-				break;
+				// case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				// {
+				// 	if(event.button.button == SDL_BUTTON_LEFT && !leftMouseButtonDown)
+				// 	{
+				// 		float x = event.motion.x;
+				// 		float y = event.motion.y;
+				// 		Body * smallBall = new Body(CircleShape(20), x * 2, y * 2, 1.0);
+				// 		bodies.push_back(smallBall);
+				// 	}
+				// 	break;
+				// }
+				// case SDL_EVENT_MOUSE_MOTION:
+				// {
+				// 	Vec2 mousePosition{event.motion.x, event.motion.y};
+				// 	mousePosition = mousePosition * Graphics::windowInfo.density;
+				// 	bodies[0]->position = mousePosition;
+				// 	break;
+				// }
+				// case SDL_EVENT_MOUSE_BUTTON_UP:
+				// {
+				// 	if(leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT)
+				// 	{
+				// 		leftMouseButtonDown = false;
+				// 		Body * last = bodies[bodies.size() - 1];
+				// 		Vec2 impulseDirection = (last->position - mouseCursor).UnitVector();
+				// 		float impulseMagnitude = (last->position - mouseCursor).Magnitude() * 5.0;
+				// 		last->velocity = impulseDirection * impulseMagnitude;
+				// 	}
+				// 	break;
+				// }
 		}
 	}
 }
