@@ -1,5 +1,7 @@
 #pragma once
 #include "Physics/Body.h"
+#include "Physics/Contact.h"
+
 #include <SDL3/SDL.h>
 #include <vector>
 

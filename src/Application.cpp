@@ -1,4 +1,8 @@
 #include "Application.h"
+
+#define TRIGGER_BREAKPOINT() __asm__ volatile("brk #0xf000")
+
+#include "GraphicHelper.h"
 #include "Graphics.h"
 #include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
@@ -11,7 +15,7 @@
 
 void Setup_TwoBox(std::vector<Body*>& bodies)
 {
-	Body* floor = new Body(BoxShape(Graphics::Width() - 50, 50), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
+	Body* floor = new Body(BoxShape(Graphics::Width() - 50, 100), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
 	floor->restitution = 0.2;
 	bodies.push_back(floor);
 
@@ -79,16 +83,8 @@ void Application::Update(float deltaTime)
 			bool    isColliding = CollisionDetection::IsColliding(a, b, contact);
 			if (isColliding)
 			{
-				// contact.ResolveCollision();
-
-				Uint32 startColor = 0xFFFF00FF;
-				Uint32 endColor = 0xFF00FF00; // green
-				Graphics::DrawFillCircle(contact.start.x, contact.start.y, 3, startColor);
-				Graphics::DrawFillCircle(contact.end.x, contact.end.y, 10, endColor);
-				// Line from start
-				Vec2 lineEnd(contact.start.x + contact.normal.x * 15, contact.start.y + contact.normal.y * 15);
-
-				Graphics::DrawLine(contact.start.x, contact.start.y, lineEnd.x, lineEnd.y, 0xFFFF00FF);
+				contact.ResolveCollision();
+				GraphicHelper::DrawDebugCollision(contact);
 				a->isColliding = true;
 				b->isColliding = true;
 			}
@@ -138,16 +134,17 @@ void Application::Render()
 	// Draw all bodies
 	for (Body* body : bodies)
 	{
-		uint32_t color = body->isColliding ? 0xFF0000FF : 0xFFFFFFFF;
+		uint32_t strokeColor = body->isColliding ? 0xFF0000FF : 0xFFFFFFFF;
+		strokeColor = 0xFFFFFFFF;
 		if (body->shape->GetType() == CIRCLE)
 		{
 			auto* circle = static_cast<CircleShape*>(body->shape);
-			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, color);
+			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, strokeColor);
 		}
 		if (body->shape->GetType() == BOX)
 		{
 			BoxShape* boxShape = static_cast<BoxShape*>(body->shape);
-			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, color);
+			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, strokeColor);
 		}
 	}
 
@@ -197,6 +194,10 @@ void Application::ProcessInput()
 					SDL_Log("Contact start (%.4f, %.4f)", contact.start.x, contact.start.y);
 				}
 			}
+			if (key == SDLK_K)
+			{
+				TRIGGER_BREAKPOINT(); // Automatically halts execution in CLion
+			}
 			if (key == SDLK_UP) pushForce.y = -50 * PIXELS_PER_METER;
 			if (key == SDLK_RIGHT) pushForce.x = 50 * PIXELS_PER_METER;
 			if (key == SDLK_DOWN) pushForce.y = 50 * PIXELS_PER_METER;
@@ -212,7 +213,7 @@ void Application::ProcessInput()
 		{
 			float x = event.motion.x;
 			float y = event.motion.y;
-			Body* box = new Body(BoxShape(50, 50), x * 2, y * 2, 1.0);
+			Body* box = new Body(BoxShape(100, 100), x * 2, y * 2, 1.0);
 			bodies.push_back(box);
 			break;
 		}
