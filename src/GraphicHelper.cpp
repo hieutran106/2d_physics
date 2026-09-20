@@ -4,16 +4,13 @@
 
 void GraphicHelper::DrawDebugCollision(const Contact& contact)
 {
-	Uint32 startColor = ColorGreen;
-	Uint32 endColor = ColorYellow;
-	DrawFillCircle(contact.start, 60, startColor);
-	DrawCircle(contact.end, 50, 0, endColor);
+	DrawFillCircle(contact.start, 10, ColorYellow);
 	// Line from start
 	Vec2 lineEnd(contact.start.x + contact.normal.x * 15, contact.start.y + contact.normal.y * 15);
 	DrawLine(contact.start, lineEnd, ColorRed);
 
 	// Line between center
-	Graphics::DrawLine(contact.a->position.x, contact.a->position.y, contact.b->position.x, contact.b->position.y, ColorMagenta);
+	// Graphics::DrawLine(contact.a->position.x, contact.a->position.y, contact.b->position.x, contact.b->position.y, ColorMagenta);
 }
 
 void GraphicHelper::DrawFillCircle(const Vec2& pos, int radius, Uint32 color)

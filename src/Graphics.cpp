@@ -4,6 +4,12 @@
 #include "SDLHelper.h"
 #include <iostream>
 
+// Convert SDL_Renderer Color (ARGB) to SDL3_gfx (ABGR)
+static Uint32 ToGfxColor(Uint32 argb)
+{
+	return (argb & 0xFF00FF00) | ((argb & 0x00FF0000) >> 16) | ((argb & 0x000000FF) << 16);
+}
+
 SDL_Window*   Graphics::window = nullptr;
 SDL_Renderer* Graphics::renderer = nullptr;
 WindowInfo    Graphics::windowInfo;
@@ -82,42 +88,44 @@ void Graphics::RenderFrame()
 
 void Graphics::DrawLine(int x0, int y0, int x1, int y1, Uint32 color)
 {
-	lineColor(renderer, x0, y0, x1, y1, color);
+	lineColor(renderer, x0, y0, x1, y1, ToGfxColor(color));
 }
 
 void Graphics::DrawCircle(int x, int y, int radius, float angle, Uint32 color)
 {
-	circleColor(renderer, x, y, radius, color);
-	lineColor(renderer, x, y, x + cos(angle) * radius, y + sin(angle) * radius, color);
+	circleColor(renderer, x, y, radius, ToGfxColor(color));
+	lineColor(renderer, x, y, x + cos(angle) * radius, y + sin(angle) * radius, ToGfxColor(color));
 }
 
 void Graphics::DrawFillCircle(int x, int y, int radius, Uint32 color)
 {
-	filledCircleColor(renderer, x, y, radius, color);
+	filledCircleColor(renderer, x, y, radius, ToGfxColor(color));
 }
 
 void Graphics::DrawRect(int x, int y, int width, int height, Uint32 color)
 {
-	lineColor(renderer, x - width / 2.0, y - height / 2.0, x + width / 2.0, y - height / 2.0, color);
-	lineColor(renderer, x + width / 2.0, y - height / 2.0, x + width / 2.0, y + height / 2.0, color);
-	lineColor(renderer, x + width / 2.0, y + height / 2.0, x - width / 2.0, y + height / 2.0, color);
-	lineColor(renderer, x - width / 2.0, y + height / 2.0, x - width / 2.0, y - height / 2.0, color);
+	Uint32 gfxColor = ToGfxColor(color);
+	lineColor(renderer, x - width / 2.0, y - height / 2.0, x + width / 2.0, y - height / 2.0, gfxColor);
+	lineColor(renderer, x + width / 2.0, y - height / 2.0, x + width / 2.0, y + height / 2.0, gfxColor);
+	lineColor(renderer, x + width / 2.0, y + height / 2.0, x - width / 2.0, y + height / 2.0, gfxColor);
+	lineColor(renderer, x - width / 2.0, y + height / 2.0, x - width / 2.0, y - height / 2.0, gfxColor);
 }
 
 void Graphics::DrawFillRect(int x, int y, int width, int height, Uint32 color)
 {
-	boxColor(renderer, x - width / 2.0, y - height / 2.0, x + width / 2.0, y + height / 2.0, color);
+	boxColor(renderer, x - width / 2.0, y - height / 2.0, x + width / 2.0, y + height / 2.0, ToGfxColor(color));
 }
 
 void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color)
 {
+	Uint32 gfxColor = ToGfxColor(color);
 	for (int i = 0; i < vertices.size(); i++)
 	{
 		int currIndex = i;
 		int nextIndex = (i + 1) % vertices.size();
-		lineColor(renderer, vertices[currIndex].x, vertices[currIndex].y, vertices[nextIndex].x, vertices[nextIndex].y, color);
+		lineColor(renderer, vertices[currIndex].x, vertices[currIndex].y, vertices[nextIndex].x, vertices[nextIndex].y, gfxColor);
 	}
-	filledCircleColor(renderer, x, y, 1, color);
+	filledCircleColor(renderer, x, y, 1, gfxColor);
 }
 
 void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color)
@@ -132,8 +140,8 @@ void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2>& vertices, 
 	{
 		vy.push_back(static_cast<int>(vertices[i].y));
 	}
-	filledPolygonColor(renderer, &vx[0], &vy[0], vertices.size(), color);
-	filledCircleColor(renderer, x, y, 1, 0xFF000000);
+	filledPolygonColor(renderer, &vx[0], &vy[0], vertices.size(), ToGfxColor(color));
+	filledCircleColor(renderer, x, y, 1, ToGfxColor(0xFF000000));
 }
 
 void Graphics::DrawTexture(int x, int y, int width, int height, float rotation, SDL_Texture* texture)
