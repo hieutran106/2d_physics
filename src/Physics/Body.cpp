@@ -1,6 +1,6 @@
 #include "Body.h"
 
-#include <SDL3/SDL.h>
+#include "Log.h"
 
 #include <cmath> // Required for std::fabs
 
@@ -67,13 +67,10 @@ void Body::IntegrateLinear(float dt)
 		velocity.x = 0.0;
 		velocity.y = 0.0;
 	}
-	SDL_Log(
-		"Body::IntegrateLinear sumForce=%s, acc=%s, velocity=%s",
-		sumForces.toString().c_str(),
-		acceleration.toString().c_str(),
-		velocity.toString().c_str());
 	// Integrate the velocity to find the new position for the next step
 	position += velocity * dt;
+	Physics::LogDebug(
+		"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
 	ClearForces();
 }
 void Body::IntegrateAngular(float dt)
@@ -86,7 +83,8 @@ void Body::IntegrateAngular(float dt)
 	angularAcceleration = sumTorque * invI;
 	angularVelocity += angularAcceleration * dt;
 	rotation += angularVelocity * dt;
-	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity, rotation);
+	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity,
+	// rotation);
 	ClearTorque();
 }
 void Body::AddForce(const Vec2& force)
@@ -109,14 +107,14 @@ void Body::ClearTorque()
 	sumTorque = 0;
 }
 
-void Body::ApplyImpulse(const Vec2& J)
-{
-	if (IsStatic())
-	{
-		return;
-	}
-	velocity += J * invMass;
-}
+// void Body::ApplyImpulse(const Vec2& J)
+// {
+// 	if (IsStatic())
+// 	{
+// 		return;
+// 	}
+// 	velocity += J * invMass;
+// }
 
 void Body::ApplyImpulse(const Vec2& J, const Vec2& r)
 {
@@ -124,12 +122,6 @@ void Body::ApplyImpulse(const Vec2& J, const Vec2& r)
 	{
 		return;
 	}
-	auto oldVelocity = velocity;
 	velocity += J * invMass;
 	angularVelocity += r.Cross(J) * invI;
-	SDL_Log(
-		"Body::ApplyImpulse oldVelocity=%s, delta=%s, velocity=%s",
-		oldVelocity.toString().c_str(),
-		(J * invMass).toString().c_str(),
-		velocity.toString().c_str());
 }

@@ -31,7 +31,7 @@ bool Graphics::InitializeWindow(const char* title, int width, int height)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Fail to init SDL");
 		return false;
 	}
-	SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
+	SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_METAL;
 	int             nativeWindowWidth = 0;
 	int             nativeWindowHeight = 0;
 	if (SDLHelper::IsIOS())

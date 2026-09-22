@@ -1,5 +1,7 @@
 #include "Contact.h"
 
+#include "Log.h"
+
 void Contact::ResolvePenetration()
 {
 	if (a->IsStatic() && b->IsStatic())
@@ -31,10 +33,13 @@ void Contact::ResolveCollision()
 	// Calculate the collision impulse
 	const Vec2 impulseDirection = normal;
 	float      impulseMagnitude =
-		-(1 + e) * vrelDotNormal / (a->invMass + b->invMass + std::pow(ra.Cross(normal), 2) * a->invI + std::pow(rb.Cross(normal), 2) * b->invI);
-	Vec2 J = impulseDirection * impulseMagnitude;
+		-(1 + e) * vrelDotNormal
+		/ (a->invMass + b->invMass + std::pow(ra.Cross(normal), 2) * a->invI + std::pow(rb.Cross(normal), 2) * b->invI);
+	Vec2 Jn = impulseDirection * impulseMagnitude;
 
 	// Calculate velocity after collision
-	a->ApplyImpulse(J, ra);
-	b->ApplyImpulse(-J, rb);
+	a->ApplyImpulse(Jn, ra);
+	b->ApplyImpulse(-Jn, rb);
+
+	Physics::LogDebug("Applied implulse J={} to body a={} b={}", Jn, *a, *b);
 }

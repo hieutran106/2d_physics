@@ -54,6 +54,33 @@ struct Body
 	 * Impulse J is the change in momentum: J = ∆P = m*∆v
 	 * Therefore, the change in velocity is: ∆v = J/m
 	 */
-	void ApplyImpulse(const Vec2& J);
+	// void ApplyImpulse(const Vec2& J);
+
+	// Change velocity and angular velocity
 	void ApplyImpulse(const Vec2& J, const Vec2& r);
+};
+
+// Formatter for Body
+template <>
+struct std::formatter<Body> : std::formatter<std::string>
+{
+	auto format(const Body& v, std::format_context& ctx) const
+	{
+		std::string shapeStr;
+		auto        shapeType = v.shape->GetType();
+		if (shapeType == BOX)
+		{
+			shapeStr = "BOX";
+		}
+		else if (shapeType == CIRCLE)
+		{
+			shapeStr = "CIRCLE";
+		}
+		else if (shapeType == POLYGON)
+		{
+			shapeStr = "POLYGON";
+		}
+		std::string staticStr = v.IsStatic() ? "STATIC" : "";
+		return std::format_to(ctx.out(), "({} {} pos={})", shapeStr, staticStr, v.position);
+	}
 };

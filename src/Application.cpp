@@ -7,6 +7,8 @@
 #include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
+#include "Physics/Log.h"
+
 #include <format>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +17,8 @@
 
 void Setup_TwoBox(std::vector<Body*>& bodies)
 {
-	Body* floor = new Body(BoxShape(Graphics::Width() - 50, 100), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
+	Body* floor =
+		new Body(BoxShape(Graphics::Width() - 50, 100), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
 	floor->restitution = 0.2;
 	bodies.push_back(floor);
 
@@ -121,6 +124,8 @@ void Application::Update(float deltaTime)
 			}
 		}
 	}
+
+	Physics::LogDebug("============================= Frame update ended =============================");
 }
 
 void Application::Render()
@@ -128,7 +133,12 @@ void Application::Render()
 	// Graphics::ClearScreen(0xFF056263);
 	if (leftMouseButtonDown)
 	{
-		Graphics::DrawLine(bodies[bodies.size() - 1]->position.x, bodies[bodies.size() - 1]->position.y, mouseCursor.x, mouseCursor.y, 0xFF0000FF);
+		Graphics::DrawLine(
+			bodies[bodies.size() - 1]->position.x,
+			bodies[bodies.size() - 1]->position.y,
+			mouseCursor.x,
+			mouseCursor.y,
+			0xFF0000FF);
 	}
 
 	// Draw all bodies
