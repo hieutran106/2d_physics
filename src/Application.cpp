@@ -4,6 +4,7 @@
 
 #include "GraphicHelper.h"
 #include "Graphics.h"
+#include "SDLHelper.h"
 #include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
@@ -17,17 +18,29 @@
 
 void Setup_TwoBox(std::vector<Body*>& bodies)
 {
-	Body* floor =
-		new Body(BoxShape(Graphics::Width() - 50, 100), Graphics::Width() / 2.0, Graphics::Height() - 40, 0.0);
-	floor->restitution = 0.2;
-	bodies.push_back(floor);
+	// BoxShape floorShape = BoxShape(Graphics::Width() - 50, 50);
+	// Body*    floor = new Body(floorShape, Graphics::Width() / 2.0, Graphics::Height() - floorShape.height / 2, 0.0);
+	//
+	// BoxShape wallShape = BoxShape(50, Graphics::Height() - 100);
+	// Body*    leftWall = new Body(wallShape, 50, Graphics::Height() / 2 - 25, 0);
+	// Body*    rightWall = new Body(wallShape, Graphics::Width() - 50, Graphics::Height() / 2 - 25, 0);
+	//
+	// floor->restitution = 0.2;
+	// leftWall->restitution = 0.2;
+	// rightWall->restitution = 0.2;
+	//
+	// bodies.push_back(floor);
+	// bodies.push_back(leftWall);
+	// bodies.push_back(rightWall);
 
-	// Add a static box so other boxes can collide
-	Body* bigBox = new Body(BoxShape(200, 200), Graphics::Width() / 2.0, Graphics::Height() / 2.0, 0.0);
+	Body* bigBox = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
+	bigBox->restitution = 0.1;
 	bigBox->rotation = 1.4;
-	bigBox->restitution = 0.5;
-
 	bodies.push_back(bigBox);
+
+	Body* ball = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	ball->restitution = 0.1;
+	bodies.push_back(ball);
 }
 
 void Setup_Cirlce(std::vector<Body*> bodies)
@@ -56,8 +69,8 @@ void Application::Update(float deltaTime)
 		// body->AddForce(drag);
 
 		// Apply weight force
-		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		body->AddForce(weight);
+		// Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
+		// body->AddForce(weight);
 		//
 		// Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
 		// body->AddForce(wind);
@@ -86,7 +99,7 @@ void Application::Update(float deltaTime)
 			bool    isColliding = CollisionDetection::IsColliding(a, b, contact);
 			if (isColliding)
 			{
-				contact.ResolveCollision();
+				// contact.ResolveCollision();
 				GraphicHelper::DrawDebugCollision(contact);
 				a->isColliding = true;
 				b->isColliding = true;
@@ -94,38 +107,7 @@ void Application::Update(float deltaTime)
 		}
 	}
 
-	// Check the boundaries of the window
-	for (auto body : bodies)
-	{
-		if (body->shape->GetType() == CIRCLE)
-		{
-			CircleShape* circle = static_cast<CircleShape*>(body->shape);
-			float        radius = circle->radius;
-			// Nasty hardcoded flip in velocity if it touches the limits of the screen window
-			if (body->position.x - radius < 0)
-			{
-				body->position.x = radius;
-				body->velocity.x *= -0.9;
-			}
-			else if (body->position.x + radius > Graphics::Width())
-			{
-				body->position.x = Graphics::Width() - radius;
-				body->velocity.x *= -0.9;
-			}
-			if (body->position.y - radius < 0)
-			{
-				body->position.y = radius;
-				body->velocity.y *= -0.9;
-			}
-			else if (body->position.y + radius >= Graphics::Height())
-			{
-				body->position.y = Graphics::Height() - radius;
-				body->velocity.y *= -0.9;
-			}
-		}
-	}
-
-	Physics::LogDebug("============================= Frame update ended =============================");
+	Physics::LogVerbose("============================= Frame update ended =============================");
 }
 
 void Application::Render()
@@ -172,6 +154,14 @@ void Application::ProcessInput()
 		SDL_Keycode key = event.key.key;
 		switch (event.type)
 		{
+		case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
+		{
+			SDL_DisplayID          display = (SDL_DisplayID)event.window.data1;
+			const char*            name = SDL_GetDisplayName(display);
+			const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(display);
+			SDL_Log("Window moved to display %u: %s, resolution: %d x %d", display, name, mode->w, mode->h);
+			break;
+		}
 		case SDL_EVENT_QUIT:
 			mRunning = false;
 			break;
@@ -221,30 +211,30 @@ void Application::ProcessInput()
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		{
-			float x = event.motion.x;
-			float y = event.motion.y;
-			Body* box = new Body(BoxShape(100, 100), x * 2, y * 2, 1.0);
-			bodies.push_back(box);
+			float x = event.motion.x * Graphics::PixelDensity();
+			float y = event.motion.y * Graphics::PixelDensity();
+			Body* ball = new Body(CircleShape(50), x, y, 1.0);
+			bodies.push_back(ball);
 			break;
 		}
-			// case SDL_EVENT_MOUSE_BUTTON_DOWN:
-			// {
-			// 	if(event.button.button == SDL_BUTTON_LEFT && !leftMouseButtonDown)
-			// 	{
-			// 		float x = event.motion.x;
-			// 		float y = event.motion.y;
-			// 		Body * smallBall = new Body(CircleShape(20), x * 2, y * 2, 1.0);
-			// 		bodies.push_back(smallBall);
-			// 	}
-			// 	break;
-			// }
-			// case SDL_EVENT_MOUSE_MOTION:
-			// {
-			// 	Vec2 mousePosition{event.motion.x, event.motion.y};
-			// 	mousePosition = mousePosition * Graphics::windowInfo.density;
-			// 	bodies[0]->position = mousePosition;
-			// 	break;
-			// }
+		// case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		// {
+		// 	if(event.button.button == SDL_BUTTON_LEFT && !leftMouseButtonDown)
+		// 	{
+		// 		float x = event.motion.x;
+		// 		float y = event.motion.y;
+		// 		Body * smallBall = new Body(CircleShape(20), x * 2, y * 2, 1.0);
+		// 		bodies.push_back(smallBall);
+		// 	}
+		// 	break;
+		// }
+		case SDL_EVENT_MOUSE_MOTION:
+		{
+			Vec2 mousePosition{ event.motion.x, event.motion.y };
+			mousePosition = mousePosition * Graphics::windowInfo.density;
+			bodies[1]->position = mousePosition;
+			break;
+		}
 			// case SDL_EVENT_MOUSE_BUTTON_UP:
 			// {
 			// 	if(leftMouseButtonDown && event.button.button == SDL_BUTTON_LEFT)

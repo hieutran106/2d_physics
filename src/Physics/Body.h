@@ -28,6 +28,9 @@ struct Body
 	// Coefficient of restitution
 	float restitution{ 1.0 };
 
+	// Coefficient of friction
+	float friction{ 0.7 };
+
 	// Collision
 	bool isColliding = false;
 

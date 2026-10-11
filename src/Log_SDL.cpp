@@ -15,3 +15,8 @@ void Physics::LogErrorImpl(std::string_view msg)
 {
 	SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", msg.data());
 }
+
+void Physics::LogVerboseImpl(std::string_view msg)
+{
+	SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "%s", msg.data());
+}

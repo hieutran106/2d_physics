@@ -18,6 +18,14 @@ bool CollisionDetection::IsColliding(Body* a, Body* b, Contact& contact)
 	{
 		return IsCollidingPolygonPolygon(a, b, contact);
 	}
+	if (aIsPolygon && bIsCircle)
+	{
+		return IsCollodingPolygonCircle(a, b, contact);
+	}
+	if (aIsCircle && bIsPolygon)
+	{
+		return IsCollodingPolygonCircle(b, a, contact);
+	}
 
 	return false;
 }
@@ -85,4 +93,11 @@ bool CollisionDetection::IsCollidingPolygonPolygon(Body* a, Body* b, Contact& co
 	}
 
 	return true;
+}
+
+bool CollisionDetection::IsCollodingPolygonCircle(Body* polygon, Body* circle, Contact& contact)
+{
+	// Find the nearest edge in the polygon to the circle center
+	
+	return false;
 }

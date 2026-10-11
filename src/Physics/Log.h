@@ -7,6 +7,7 @@ namespace Physics
 void LogInfoImpl(std::string_view msg);
 void LogDebugImpl(std::string_view msg);
 void LogErrorImpl(std::string_view msg);
+void LogVerboseImpl(std::string_view msg);
 
 // Public API: compile-time-checked format string + args.
 template <typename... Args>
@@ -25,5 +26,11 @@ template <typename... Args>
 void LogError(std::format_string<Args...> fmt, Args&&... args)
 {
 	LogErrorImpl(std::format(fmt, std::forward<Args>(args)...));
+}
+
+template <typename... Args>
+void LogVerbose(std::format_string<Args...> fmt, Args&&... args)
+{
+	LogVerboseImpl(std::format(fmt, std::forward<Args>(args)...));
 }
 } // namespace Physics

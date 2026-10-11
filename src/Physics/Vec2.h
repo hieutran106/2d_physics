@@ -25,7 +25,9 @@ struct Vec2
 
 	Vec2& Normalize();        // v1.Normalize()
 	Vec2  UnitVector() const; // v1.UnitVector()
-	Vec2  Normal() const;     // n = v1.Normal()
+
+	// Right normal (clockwise)
+	Vec2 Normal() const;
 
 	float Dot(const Vec2& v) const;   // v1.Dot(v2)
 	float Cross(const Vec2& v) const; // v1.Cross(v2)
@@ -54,7 +56,10 @@ struct Vec2
 template <>
 struct std::formatter<Vec2> : std::formatter<std::string>
 {
-	auto format(const Vec2& v, std::format_context& ctx) const { return std::format_to(ctx.out(), "({:.1f}, {:.1f})", v.x, v.y); }
+	auto format(const Vec2& v, std::format_context& ctx) const
+	{
+		return std::format_to(ctx.out(), "({:.1f}, {:.1f})", v.x, v.y);
+	}
 };
 
 // Formatter for std::vector<Vec2>

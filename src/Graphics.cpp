@@ -23,8 +23,12 @@ int Graphics::Height()
 {
 	return windowInfo.fbHeight;
 }
+float Graphics::PixelDensity()
+{
+	return windowInfo.density;
+}
 
-bool Graphics::InitializeWindow(const char* title, int width, int height)
+bool Graphics::InitializeWindow(const char* title, int aspectW, int aspectH)
 {
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
@@ -32,31 +36,41 @@ bool Graphics::InitializeWindow(const char* title, int width, int height)
 		return false;
 	}
 	SDL_WindowFlags windowFlags = SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_METAL;
-	int             nativeWindowWidth = 0;
-	int             nativeWindowHeight = 0;
 	if (SDLHelper::IsIOS())
 	{
 		windowFlags = windowFlags | SDL_WINDOW_FULLSCREEN;
 	}
 	else
 	{
-		SDL_DisplayID          primaryDisplay = SDL_GetPrimaryDisplay();
-		const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(primaryDisplay);
-		SDL_Log("Screen resolution: %d x %d", mode->w, mode->h);
-		nativeWindowHeight = 4 * mode->h / 5;
-		// keep aspect ratio
-		nativeWindowWidth = nativeWindowHeight * width / height;
+		// Desktop environment, create hidden first; we don't yet know which display we'll land on.
+		windowFlags |= SDL_WINDOW_HIDDEN;
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_DRIVER, "direct3d12,metal");
 
-	window = SDL_CreateWindow(title, nativeWindowWidth, nativeWindowHeight, windowFlags);
+	// Create at a placeholder size; real size decided after we know the display
+	window = SDL_CreateWindow(title, 100, 100, windowFlags);
 
 	if (!window)
 	{
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Error creating SDL Window");
 		return false;
 	}
+
+	if (!SDLHelper::IsIOS())
+	{
+		// Desktop environment
+		SDL_DisplayID          display = SDL_GetDisplayForWindow(window);
+		const char*            name = SDL_GetDisplayName(display);
+		const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(display);
+		SDL_Log("Window opened on display %u: %s, resolution: %d x %d", display, name, mode->w, mode->h);
+		int windowHeight = 4 * mode->h / 5;
+		int windowWidth = windowHeight * aspectW / aspectH; // Keep aspect ratio
+		SDL_SetWindowSize(window, windowWidth, windowHeight);
+		SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+		SDL_ShowWindow(window);
+	}
+
 	SDLHelper::LogSDLWindowFlags(window);
 
 	renderer = SDL_CreateRenderer(window, nullptr);
@@ -66,7 +80,8 @@ bool Graphics::InitializeWindow(const char* title, int width, int height)
 		return false;
 	}
 	SDL_PropertiesID props = SDL_GetRendererProperties(renderer);
-	SDL_PixelFormat* format = static_cast<SDL_PixelFormat*>(SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr));
+	SDL_PixelFormat* format = static_cast<SDL_PixelFormat*>(
+		SDL_GetPointerProperty(props, SDL_PROP_RENDERER_TEXTURE_FORMATS_POINTER, nullptr));
 	if (format)
 	{
 		SDL_Log("SDL_Renderer PixelFormat: %s", SDL_GetPixelFormatName(*format));
@@ -123,7 +138,13 @@ void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint
 	{
 		int currIndex = i;
 		int nextIndex = (i + 1) % vertices.size();
-		lineColor(renderer, vertices[currIndex].x, vertices[currIndex].y, vertices[nextIndex].x, vertices[nextIndex].y, gfxColor);
+		lineColor(
+			renderer,
+			vertices[currIndex].x,
+			vertices[currIndex].y,
+			vertices[nextIndex].x,
+			vertices[nextIndex].y,
+			gfxColor);
 	}
 	filledCircleColor(renderer, x, y, 1, gfxColor);
 }
@@ -146,8 +167,10 @@ void Graphics::DrawFillPolygon(int x, int y, const std::vector<Vec2>& vertices, 
 
 void Graphics::DrawTexture(int x, int y, int width, int height, float rotation, SDL_Texture* texture)
 {
-	SDL_FRect dstRect = { x - (width / 2.0f), y - (height / 2.0f), static_cast<float>(width), static_cast<float>(height) };
-	float     rotationDeg = rotation * 57.2958;
+	SDL_FRect dstRect = {
+		x - (width / 2.0f), y - (height / 2.0f), static_cast<float>(width), static_cast<float>(height)
+	};
+	float rotationDeg = rotation * 57.2958;
 	SDL_RenderTextureRotated(renderer, texture, nullptr, &dstRect, rotationDeg, nullptr, SDL_FLIP_NONE);
 }
 

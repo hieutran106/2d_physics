@@ -69,8 +69,8 @@ void Body::IntegrateLinear(float dt)
 	}
 	// Integrate the velocity to find the new position for the next step
 	position += velocity * dt;
-	Physics::LogDebug(
-		"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
+	// Physics::LogDebug(
+	// 	"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
 	ClearForces();
 }
 void Body::IntegrateAngular(float dt)
@@ -106,15 +106,6 @@ void Body::ClearTorque()
 {
 	sumTorque = 0;
 }
-
-// void Body::ApplyImpulse(const Vec2& J)
-// {
-// 	if (IsStatic())
-// 	{
-// 		return;
-// 	}
-// 	velocity += J * invMass;
-// }
 
 void Body::ApplyImpulse(const Vec2& J, const Vec2& r)
 {

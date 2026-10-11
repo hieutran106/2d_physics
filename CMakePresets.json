@@ -8,7 +8,7 @@
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "USE_SANITIZERS": "ON",
+        "USE_SANITIZERS": "OFF",
         "BUILD_TESTS": "ON"
       }
     },
