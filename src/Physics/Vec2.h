@@ -26,7 +26,7 @@ struct Vec2
 	Vec2& Normalize();        // v1.Normalize()
 	Vec2  UnitVector() const; // v1.UnitVector()
 
-	// Right normal (clockwise)
+	// Right normal (clockwise in Cartesian space, Counter-clockwise in screen space)
 	Vec2 Normal() const;
 
 	float Dot(const Vec2& v) const;   // v1.Dot(v2)

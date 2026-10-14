@@ -1,5 +1,8 @@
 #include "CollisionDetection.h"
 
+#include "../GraphicHelper.h"
+#include "../Graphics.h"
+
 bool CollisionDetection::IsColliding(Body* a, Body* b, Contact& contact)
 {
 	ShapeType aShapeType = a->shape->GetType();
@@ -97,7 +100,31 @@ bool CollisionDetection::IsCollidingPolygonPolygon(Body* a, Body* b, Contact& co
 
 bool CollisionDetection::IsCollodingPolygonCircle(Body* polygon, Body* circle, Contact& contact)
 {
+	const PolygonShape*      polygonShape = static_cast<PolygonShape*>(polygon->shape);
+	const std::vector<Vec2>& vertices = polygonShape->worldVertices;
+	Vec2                     center = circle->position;
+
+	// Find the edge whose outward normal gives the greatest projection of the circle center.
+	// maxSeparation >= 0 => center is outside that edge's plane; < 0 => inside polygon.
+	Vec2  nearestEdgeStart;
+	Vec2  nearestEdgeEnd;
+	float maxSeparation = std::numeric_limits<float>::lowest();
+
 	// Find the nearest edge in the polygon to the circle center
-	
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		Vec2 edge = polygonShape->EdgeAt(i);
+		Vec2 normal = edge.Normal();
+
+		float projection = (center - vertices[i]).Dot(normal);
+		if (projection > 0 && projection > maxSeparation)
+		{
+			maxSeparation = projection;
+			nearestEdgeStart = vertices[i];
+			nearestEdgeEnd = vertices[(i + 1) % vertices.size()];
+		}
+	}
+	Graphics::DrawFillCircle(nearestEdgeStart.x, nearestEdgeStart.y, 5, GraphicHelper::ColorYellow);
+	Graphics::DrawFillCircle(nearestEdgeEnd.x, nearestEdgeEnd.y, 5, GraphicHelper::ColorYellow);
 	return false;
 }

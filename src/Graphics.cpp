@@ -105,6 +105,10 @@ void Graphics::DrawLine(int x0, int y0, int x1, int y1, Uint32 color)
 {
 	lineColor(renderer, x0, y0, x1, y1, ToGfxColor(color));
 }
+void Graphics::DrawThickLine(int x0, int y0, int x1, int y1, int width, Uint32 color)
+{
+	thickLineColor(renderer, x0, y0, x1, y1, width, ToGfxColor(color));
+}
 
 void Graphics::DrawCircle(int x, int y, int radius, float angle, Uint32 color)
 {

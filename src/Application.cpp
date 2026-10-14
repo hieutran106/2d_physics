@@ -140,6 +140,17 @@ void Application::Render()
 		}
 	}
 
+	// test
+	Vec2 p1(Graphics::Width() / 2, Graphics::Height() / 2);
+	Vec2 p2(Graphics::Width() / 2, Graphics::Height() / 2 + 200);
+
+	Vec2 line = p2 - p1;
+	Vec2 n = line.Normal();
+
+	Graphics::DrawThickLine(p1.x, p1.y, p2.x, p2.y, 4, GraphicHelper::ColorRed);
+
+	Graphics::DrawThickLine(p2.x, p2.y, p2.x + 100 * n.x, p2.y + 100 * n.y, 4, GraphicHelper::ColorCyan);
+
 	Graphics::RenderFrame();
 }
 
