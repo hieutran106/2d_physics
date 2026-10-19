@@ -23,11 +23,11 @@ bool CollisionDetection::IsColliding(Body* a, Body* b, Contact& contact)
 	}
 	if (aIsPolygon && bIsCircle)
 	{
-		return IsCollodingPolygonCircle(a, b, contact);
+		return IsCollidingPolygonCircle(a, b, contact);
 	}
 	if (aIsCircle && bIsPolygon)
 	{
-		return IsCollodingPolygonCircle(b, a, contact);
+		return IsCollidingPolygonCircle(b, a, contact);
 	}
 
 	return false;
@@ -98,16 +98,17 @@ bool CollisionDetection::IsCollidingPolygonPolygon(Body* a, Body* b, Contact& co
 	return true;
 }
 
-bool CollisionDetection::IsCollodingPolygonCircle(Body* polygon, Body* circle, Contact& contact)
+bool CollisionDetection::IsCollidingPolygonCircle(Body* polygon, Body* circle, Contact& contact)
 {
 	const PolygonShape*      polygonShape = static_cast<PolygonShape*>(polygon->shape);
+	const CircleShape*       circleShape = static_cast<CircleShape*>(circle->shape);
 	const std::vector<Vec2>& vertices = polygonShape->worldVertices;
 	Vec2                     center = circle->position;
 
 	// Find the edge whose outward normal gives the greatest projection of the circle center.
-	// maxSeparation >= 0 => center is outside that edge's plane; < 0 => inside polygon.
-	Vec2  nearestEdgeStart;
-	Vec2  nearestEdgeEnd;
+	Vec2 nearestEdgeStart;
+	Vec2 nearestEdgeEnd;
+	// Max separation also the distance from the circle center to the edge
 	float maxSeparation = std::numeric_limits<float>::lowest();
 
 	// Find the nearest edge in the polygon to the circle center
@@ -124,7 +125,45 @@ bool CollisionDetection::IsCollodingPolygonCircle(Body* polygon, Body* circle, C
 			nearestEdgeEnd = vertices[(i + 1) % vertices.size()];
 		}
 	}
-	Graphics::DrawFillCircle(nearestEdgeStart.x, nearestEdgeStart.y, 5, GraphicHelper::ColorYellow);
-	Graphics::DrawFillCircle(nearestEdgeEnd.x, nearestEdgeEnd.y, 5, GraphicHelper::ColorYellow);
+
+
+	bool isInside = maxSeparation >= 0;
+	Vec2 edge = nearestEdgeEnd - nearestEdgeStart;
+
+	if (isInside)
+	{
+		// The center of the circle is inside the polygon. It is definitely colliding.
+		contact.a = polygon;
+		contact.b = circle;
+		contact.depth = circleShape->radius - maxSeparation;
+		contact.normal = edge.Normal();
+		contact.start = circle->position + contact.normal * circleShape->radius;
+		contact.end = contact.start + contact.normal * contact.depth;
+		return true;
+	}
+
+	// Circle is outside
+	float d1 = (center - nearestEdgeStart).Dot(edge);
+	float d2 = (center - nearestEdgeEnd).Dot(edge);
+	if (d1 < 0 && d2 < 0)
+	{
+		// Circle center is in region A
+		Graphics::DrawFillCircle(nearestEdgeStart.x, nearestEdgeStart.y, 10, GraphicHelper::ColorRed);
+		Graphics::DrawFillCircle(nearestEdgeEnd.x, nearestEdgeEnd.y, 5, GraphicHelper::ColorWhite);
+	}
+	else if (d1 > 0 && d2 > 0)
+	{
+		// Circle center is in region B
+		Graphics::DrawFillCircle(nearestEdgeStart.x, nearestEdgeStart.y, 5, GraphicHelper::ColorWhite);
+		Graphics::DrawFillCircle(nearestEdgeEnd.x, nearestEdgeEnd.y, 10, GraphicHelper::ColorRed);
+	}
+	else
+	{
+		// Circle is in region C
+		Graphics::DrawFillCircle(nearestEdgeStart.x, nearestEdgeStart.y, 10, GraphicHelper::ColorRed);
+		Graphics::DrawFillCircle(nearestEdgeEnd.x, nearestEdgeEnd.y, 10, GraphicHelper::ColorRed);
+	}
+
+
 	return false;
 }

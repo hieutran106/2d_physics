@@ -149,6 +149,12 @@ void Graphics::DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint
 			vertices[nextIndex].x,
 			vertices[nextIndex].y,
 			gfxColor);
+
+		Vec2 scale(3.0f, 3.0f);
+		SDL_SetRenderScale(renderer, scale.x, scale.y);
+		SDL_RenderDebugTextFormat(
+			renderer, (vertices[currIndex].x + 5) / scale.x, (vertices[currIndex].y + 5) / scale.y, "%d", i);
+		SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 	}
 	filledCircleColor(renderer, x, y, 1, gfxColor);
 }
