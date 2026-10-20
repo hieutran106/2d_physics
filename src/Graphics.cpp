@@ -2,6 +2,8 @@
 
 #include "SDL3_gfxPrimitives.h"
 #include "SDLHelper.h"
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 
 // Convert SDL_Renderer Color (ARGB) to SDL3_gfx (ABGR)
@@ -108,6 +110,38 @@ void Graphics::DrawLine(int x0, int y0, int x1, int y1, Uint32 color)
 void Graphics::DrawThickLine(int x0, int y0, int x1, int y1, int width, Uint32 color)
 {
 	thickLineColor(renderer, x0, y0, x1, y1, width, ToGfxColor(color));
+}
+
+void Graphics::DrawThickArrow(int x0, int y0, int x1, int y1, int width, Uint32 color)
+{
+	Uint32 gfxColor = ToGfxColor(color);
+
+	// Shaft
+	thickLineColor(renderer, x0, y0, x1, y1, width, gfxColor);
+
+	// Arrowhead geometry: scale the head to the line length so short arrows
+	// don't get oversized barbs.
+	float dx = static_cast<float>(x1 - x0);
+	float dy = static_cast<float>(y1 - y0);
+	float len = std::sqrt(dx * dx + dy * dy);
+	if (len < 1e-4f)
+	{
+		return; // degenerate: no direction to point
+	}
+
+	float       headLen = std::min(15.0f + width * 2.0f, len); // barb length, capped at shaft length
+	const float headAngle = 0.5f;                              // ~28.6° half-spread of the barbs
+
+	float angle = std::atan2(dy, dx);
+
+	// Two barbs sweep back from the tip (x1, y1) at ±headAngle.
+	int bx1 = static_cast<int>(x1 - headLen * std::cos(angle - headAngle));
+	int by1 = static_cast<int>(y1 - headLen * std::sin(angle - headAngle));
+	int bx2 = static_cast<int>(x1 - headLen * std::cos(angle + headAngle));
+	int by2 = static_cast<int>(y1 - headLen * std::sin(angle + headAngle));
+
+	thickLineColor(renderer, x1, y1, bx1, by1, width, gfxColor);
+	thickLineColor(renderer, x1, y1, bx2, by2, width, gfxColor);
 }
 
 void Graphics::DrawCircle(int x, int y, int radius, float angle, Uint32 color)

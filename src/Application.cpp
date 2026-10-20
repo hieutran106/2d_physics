@@ -33,12 +33,12 @@ void Setup_TwoBox(std::vector<Body*>& bodies)
 	// bodies.push_back(leftWall);
 	// bodies.push_back(rightWall);
 
-	Body* bigBox = new Body(BoxShape(200, 200), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
+	Body* bigBox = new Body(BoxShape(800, 800), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
 	bigBox->restitution = 0.1;
 	bigBox->rotation = 1.4;
 	bodies.push_back(bigBox);
 
-	Body* ball = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
+	Body* ball = new Body(CircleShape(200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
 	ball->restitution = 0.1;
 	bodies.push_back(ball);
 }
@@ -126,8 +126,7 @@ void Application::Render()
 	// Draw all bodies
 	for (Body* body : bodies)
 	{
-		uint32_t strokeColor = body->isColliding ? 0xFF0000FF : 0xFFFFFFFF;
-		strokeColor = 0xFFFFFFFF;
+		uint32_t strokeColor = body->isColliding ? GraphicHelper::ColorRed : GraphicHelper::ColorWhite;
 		if (body->shape->GetType() == CIRCLE)
 		{
 			auto* circle = static_cast<CircleShape*>(body->shape);

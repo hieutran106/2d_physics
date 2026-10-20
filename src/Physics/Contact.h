@@ -12,9 +12,12 @@ struct Contact
 	Body* a;
 	Body* b;
 
+	// Start point is on B
 	Vec2 start;
+	// End point is on A
 	Vec2 end;
 
+	// Normal direction is always from start->end, aka from body B -> body A
 	Vec2  normal;
 	float depth;
 
