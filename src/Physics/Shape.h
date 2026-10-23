@@ -33,7 +33,7 @@ struct PolygonShape : public Shape
 	std::vector<Vec2> worldVertices;
 
 	PolygonShape() = default;
-	explicit PolygonShape(const std::vector<Vec2>& vertices);
+	explicit PolygonShape(std::vector<Vec2> vertices);
 	~PolygonShape() override = default;
 	ShapeType GetType() const override;
 	float     GetMomentOfInertia() const override;

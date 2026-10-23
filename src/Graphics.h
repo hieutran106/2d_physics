@@ -31,7 +31,7 @@ public:
 	static void DrawFillCircle(int x, int y, int radius, Uint32 color);
 	static void DrawRect(int x, int y, int width, int height, Uint32 color);
 	static void DrawFillRect(int x, int y, int width, int height, Uint32 color);
-	static void DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color);
+	static void DrawPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color, bool drawVertices = false);
 	static void DrawFillPolygon(int x, int y, const std::vector<Vec2>& vertices, Uint32 color);
 	static void DrawTexture(int x, int y, int width, int height, float rotation, SDL_Texture* texture);
 };

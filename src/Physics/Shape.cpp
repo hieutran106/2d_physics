@@ -22,8 +22,9 @@ Shape* CircleShape::Clone() const
 	return new CircleShape(radius);
 }
 
-PolygonShape::PolygonShape(const std::vector<Vec2>& vertices)
-	: localVertices(vertices)
+PolygonShape::PolygonShape(std::vector<Vec2> vertices)
+	: localVertices(std::move(vertices))
+	, worldVertices(localVertices)
 {
 }
 ShapeType PolygonShape::GetType() const
@@ -32,7 +33,8 @@ ShapeType PolygonShape::GetType() const
 }
 float PolygonShape::GetMomentOfInertia() const
 {
-	return 0;
+	// TODO: We need to compute the moment of inertia of the polygon correctly
+	return 5000;
 }
 Vec2 PolygonShape::EdgeAt(int index) const
 {

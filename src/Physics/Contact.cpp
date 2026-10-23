@@ -52,5 +52,5 @@ void Contact::ResolveCollision()
 	a->ApplyImpulse(J, ra);
 	b->ApplyImpulse(-J, rb);
 
-	Physics::LogDebug("Applied implulse J={} to body a={} b={}", Jn, *a, *b);
+	// Physics::LogDebug("Applied implulse J={} to body a={} b={}", Jn, *a, *b);
 }

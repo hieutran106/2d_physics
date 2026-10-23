@@ -7,7 +7,7 @@
 
 class Application
 {
-private:
+	bool               debug = false;
 	bool               mRunning = false;
 	std::vector<Body*> bodies;
 	Vec2               pushForce;
