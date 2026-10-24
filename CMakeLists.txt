@@ -29,6 +29,11 @@ function(link_sdl3_gfx target_name)
     target_include_directories(${target_name} PRIVATE ${SDL3_GFX})
 endfunction()
 
+function(link_sdl3_image target_name)
+    set(SDL3_IMAGE_FRAMEWORK "${CMAKE_SOURCE_DIR}/third_party/SDL3_image.xcframework")
+    target_link_libraries(${target_name} PRIVATE "${SDL3_IMAGE_FRAMEWORK}")
+endfunction()
+
 function(copy_asset target_name)
     if (IOS)
         add_custom_command(TARGET ${target_name} POST_BUILD
@@ -68,6 +73,7 @@ file(GLOB SDL_WINDOW_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(2d_physics ${SDL_WINDOW_SOURCES} ${PHYSICS_SOURCES})
 link_sdl3_gfx(2d_physics)
 link_sdl3_xc(2d_physics)
+link_sdl3_image(2d_physics)
 copy_asset(2d_physics)
 enable_sanitizers(2d_physics)
 

@@ -34,6 +34,7 @@ void Setup_TwoBox(std::vector<Body*>& bodies)
 	bodies.push_back(rightWall);
 
 	Body* bigBox = new Body(BoxShape(400, 400), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
+	bigBox->SetTexture("assets/crate.png");
 	bigBox->restitution = 0.7;
 	bigBox->rotation = 1.4;
 	bodies.push_back(bigBox);
@@ -142,7 +143,20 @@ void Application::Render()
 		if (body->shape->GetType() == BOX)
 		{
 			BoxShape* boxShape = static_cast<BoxShape*>(body->shape);
-			Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, strokeColor, debug);
+			if (!debug && body->texture)
+			{
+				Graphics::DrawTexture(
+					body->position.x,
+					body->position.y,
+					boxShape->width,
+					boxShape->height,
+					body->rotation,
+					body->texture);
+			}
+			else
+			{
+				Graphics::DrawPolygon(body->position.x, body->position.y, boxShape->worldVertices, strokeColor, debug);
+			}
 		}
 		if (body->shape->GetType() == POLYGON)
 		{

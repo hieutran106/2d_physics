@@ -3,6 +3,8 @@
 #include "Log.h"
 
 #include <cmath> // Required for std::fabs
+#include <SDL3_image/SDL_image.h>
+#include "../Graphics.h"
 
 Body::Body(const Shape& shape, float x, float y, float m)
 	: position(x, y)
@@ -37,6 +39,16 @@ Body::Body(const Shape& shape, float x, float y, float m)
 Body::~Body()
 {
 	delete shape;
+}
+
+void Body::SetTexture(const char* textureFileName)
+{
+	SDL_Surface* surface = IMG_Load(textureFileName);
+	if (surface)
+	{
+		texture = SDL_CreateTextureFromSurface(Graphics::renderer, surface);
+		SDL_DestroySurface(surface);
+	}
 }
 bool Body::IsStatic() const
 {

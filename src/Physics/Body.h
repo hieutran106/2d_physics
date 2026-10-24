@@ -1,6 +1,7 @@
 #pragma once
 #include "Shape.h"
 #include "Vec2.h"
+#include <SDL3/SDL.h>
 
 struct Body
 {
@@ -37,8 +38,11 @@ struct Body
 	// A pointer to the geometry
 	Shape* shape = nullptr;
 
+	SDL_Texture* texture = nullptr;
+
 	Body(const Shape& shape, float x, float y, float m);
 	~Body();
+	void SetTexture(const char* textureFileName);
 
 	bool IsStatic() const;
 	void Update(float dt);
