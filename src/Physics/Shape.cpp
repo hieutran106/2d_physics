@@ -1,5 +1,4 @@
 #include "Shape.h"
-// #include <SDL3/SDL.h>
 
 CircleShape::CircleShape(float radius)
 	: radius(radius)
@@ -24,7 +23,6 @@ Shape* CircleShape::Clone() const
 
 PolygonShape::PolygonShape(std::vector<Vec2> vertices)
 	: localVertices(std::move(vertices))
-	, worldVertices(localVertices)
 {
 }
 ShapeType PolygonShape::GetType() const
@@ -81,6 +79,7 @@ Shape* PolygonShape::Clone() const
 }
 void PolygonShape::UpdateVertices(float rotation, const Vec2& position)
 {
+	worldVertices.resize(localVertices.size()); // no-op after first call
 	for (int i = 0; i < localVertices.size(); i++)
 	{
 		// First, rotate
@@ -98,12 +97,6 @@ BoxShape::BoxShape(float width, float height)
 	localVertices.push_back(Vec2(width / 2, -height / 2));
 	localVertices.push_back(Vec2(width / 2, height / 2));
 	localVertices.push_back(Vec2(-width / 2, height / 2));
-
-	// Initialize world vertices, to prepare for in-place update
-	worldVertices.push_back(Vec2(-width / 2, -height / 2));
-	worldVertices.push_back(Vec2(width / 2, -height / 2));
-	worldVertices.push_back(Vec2(width / 2, height / 2));
-	worldVertices.push_back(Vec2(-width / 2, height / 2));
 }
 
 ShapeType BoxShape::GetType() const

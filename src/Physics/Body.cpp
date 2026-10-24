@@ -9,6 +9,11 @@ Body::Body(const Shape& shape, float x, float y, float m)
 	, mass(m)
 {
 	this->shape = shape.Clone();
+	// populate the worldVertices cache once at creation so it's valid before the first Update
+	if (auto* poly = dynamic_cast<PolygonShape*>(this->shape))
+	{
+		poly->UpdateVertices(rotation, position);
+	}
 	if (mass != 0)
 	{
 		invMass = 1 / mass;
@@ -42,6 +47,7 @@ void Body::Update(float deltaTime)
 {
 	IntegrateLinear(deltaTime);
 	IntegrateAngular(deltaTime);
+	// Populate worldVertices cache
 	auto shapeType = shape->GetType();
 	bool isPolygon = shapeType == POLYGON || shapeType == BOX;
 	if (isPolygon)
