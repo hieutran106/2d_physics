@@ -20,6 +20,7 @@ Shape* CircleShape::Clone() const
 {
 	return new CircleShape(radius);
 }
+void CircleShape::UpdateVertices(float angle, const Vec2& position) { }
 
 PolygonShape::PolygonShape(std::vector<Vec2> vertices)
 	: localVertices(std::move(vertices))

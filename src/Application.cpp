@@ -4,10 +4,8 @@
 
 #include "GraphicHelper.h"
 #include "Graphics.h"
-#include "SDLHelper.h"
 #include "Physics/CollisionDetection.h"
 #include "Physics/Constants.h"
-#include "Physics/Force.h"
 #include "Physics/Log.h"
 
 #include <format>
@@ -16,7 +14,7 @@
 // Setup function (executed once in the beginning of the simulation)
 ///////////////////////////////////////////////////////////////////////////////
 
-void Setup_TwoBox(std::vector<Body*>& bodies)
+void Setup_TwoBox(World* world)
 {
 	BoxShape floorShape = BoxShape(Graphics::Width() - 50, 80);
 	Body* floor = new Body(floorShape, Graphics::Width() / 2.0, Graphics::Height() - floorShape.height - 50 / 2, 0.0);
@@ -29,19 +27,15 @@ void Setup_TwoBox(std::vector<Body*>& bodies)
 	leftWall->restitution = 0.2;
 	rightWall->restitution = 0.2;
 
-	bodies.push_back(floor);
-	bodies.push_back(leftWall);
-	bodies.push_back(rightWall);
+	world->AddBody(floor);
+	world->AddBody(leftWall);
+	world->AddBody(rightWall);
 
 	Body* bigBox = new Body(BoxShape(400, 400), Graphics::Width() / 2, Graphics::Height() / 2, 0.0);
 	bigBox->SetTexture("assets/crate.png");
 	bigBox->restitution = 0.7;
 	bigBox->rotation = 1.4;
-	bodies.push_back(bigBox);
-
-	// Body* ball = new Body(CircleShape(200), Graphics::Width() / 2, Graphics::Height() / 2, 1.0);
-	// ball->restitution = 0.1;
-	// bodies.push_back(ball);
+	world->AddBody(bigBox);
 }
 
 void Setup_Cirlce(std::vector<Body*> bodies)
@@ -52,7 +46,8 @@ void Setup_Cirlce(std::vector<Body*> bodies)
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
-	Setup_TwoBox(bodies);
+	world = new World(-9.8);
+	Setup_TwoBox(world);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,73 +56,16 @@ void Application::Setup()
 void Application::Update(float deltaTime)
 {
 	Graphics::ClearScreen(0xFF056263);
-	for (auto body : bodies)
-	{
-		// body->AddForce(pushForce);
-
-		// Apply drag force
-		// Vec2 drag = Force::GenerateDragForce(*body, 0.002);
-		// body->AddForce(drag);
-
-		// Apply weight force
-		Vec2 weight = Vec2(0.0, body->mass * 9.8 * PIXELS_PER_METER);
-		body->AddForce(weight);
-		//
-		// Vec2 wind = Vec2(2.0 * PIXELS_PER_METER, 0);
-		// body->AddForce(wind);
-
-		// float torque = 400;
-		// body->AddTorque(torque);
-	}
-
-	for (auto body : bodies)
-	{
-		body->Update(deltaTime);
-	}
-
-	for (const auto body : bodies)
-	{
-		body->isColliding = false;
-	}
-	// Check all the bodies for collision
-	for (int i = 0; i < bodies.size() - 1; i++)
-	{
-		for (int j = i + 1; j < bodies.size(); j++)
-		{
-			Body*   a = bodies[i];
-			Body*   b = bodies[j];
-			Contact contact;
-			bool    isColliding = CollisionDetection::IsColliding(a, b, contact);
-			if (isColliding)
-			{
-				contact.ResolveCollision();
-				if (debug)
-				{
-					GraphicHelper::DrawDebugCollision(contact);
-				}
-				a->isColliding = true;
-				b->isColliding = true;
-			}
-		}
-	}
-
+	world->Update(deltaTime);
 	Physics::LogVerbose("============================= Frame update ended =============================");
 }
 
 void Application::Render()
 {
-	if (leftMouseButtonDown)
-	{
-		Graphics::DrawLine(
-			bodies[bodies.size() - 1]->position.x,
-			bodies[bodies.size() - 1]->position.y,
-			mouseCursor.x,
-			mouseCursor.y,
-			0xFF0000FF);
-	}
+
 
 	// Draw all bodies
-	for (Body* body : bodies)
+	for (Body* body : world->GetBodies())
 	{
 		uint32_t strokeColor = GraphicHelper::ColorWhite;
 		if (debug)
@@ -138,7 +76,20 @@ void Application::Render()
 		if (body->shape->GetType() == CIRCLE)
 		{
 			auto* circle = static_cast<CircleShape*>(body->shape);
-			Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, strokeColor);
+			if (!debug && body->texture)
+			{
+				Graphics::DrawTexture(
+					body->position.x,
+					body->position.y,
+					circle->radius * 2,
+					circle->radius * 2,
+					body->rotation,
+					body->texture);
+			}
+			else
+			{
+				Graphics::DrawCircle(body->position.x, body->position.y, circle->radius, body->rotation, strokeColor);
+			}
 		}
 		if (body->shape->GetType() == BOX)
 		{
@@ -197,16 +148,16 @@ void Application::ProcessInput()
 			{
 				TRIGGER_BREAKPOINT(); // Automatically halts execution in CLion
 			}
-			if (key == SDLK_UP) pushForce.y = -50 * PIXELS_PER_METER;
-			if (key == SDLK_RIGHT) pushForce.x = 50 * PIXELS_PER_METER;
-			if (key == SDLK_DOWN) pushForce.y = 50 * PIXELS_PER_METER;
-			if (key == SDLK_LEFT) pushForce.x = -50 * PIXELS_PER_METER;
+			// if (key == SDLK_UP) pushForce.y = -50 * PIXELS_PER_METER;
+			// if (key == SDLK_RIGHT) pushForce.x = 50 * PIXELS_PER_METER;
+			// if (key == SDLK_DOWN) pushForce.y = 50 * PIXELS_PER_METER;
+			// if (key == SDLK_LEFT) pushForce.x = -50 * PIXELS_PER_METER;
 			break;
 		case SDL_EVENT_KEY_UP:
-			if (key == SDLK_UP) pushForce.y = 0;
-			if (key == SDLK_RIGHT) pushForce.x = 0;
-			if (key == SDLK_DOWN) pushForce.y = 0;
-			if (key == SDLK_LEFT) pushForce.x = 0;
+			// if (key == SDLK_UP) pushForce.y = 0;
+			// if (key == SDLK_RIGHT) pushForce.x = 0;
+			// if (key == SDLK_DOWN) pushForce.y = 0;
+			// if (key == SDLK_LEFT) pushForce.x = 0;
 			break;
 			// case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			// {
@@ -222,16 +173,17 @@ void Application::ProcessInput()
 			{
 				float x = event.motion.x * Graphics::PixelDensity();
 				float y = event.motion.y * Graphics::PixelDensity();
-				// Body* smallBall = new Body(CircleShape(50), x * 2, y * 2, 1.0);
-				// bodies.push_back(smallBall);
+				Body* smallBall = new Body(CircleShape(50), x, y, 1.0);
+				smallBall->SetTexture("assets/basketball.png");
+				world->GetBodies().push_back(smallBall);
 
-				std::vector<Vec2> vertices = {
-					Vec2(20, 60), Vec2(-40, 20), Vec2(-20, -60), Vec2(20, -60), Vec2(40, 20)
-				};
-				Body* poly = new Body(PolygonShape(vertices), x, y, 2.0);
-				poly->restitution = 0.1;
-				poly->friction = 0.7;
-				bodies.push_back(poly);
+				// std::vector<Vec2> vertices = {
+				// 	Vec2(20, 60), Vec2(-40, 20), Vec2(-20, -60), Vec2(20, -60), Vec2(40, 20)
+				// };
+				// Body* poly = new Body(PolygonShape(vertices), x, y, 2.0);
+				// poly->restitution = 0.1;
+				// poly->friction = 0.7;
+				// bodies.push_back(poly);
 			}
 			break;
 		}
@@ -260,9 +212,6 @@ void Application::ProcessInput()
 
 void Application::Destroy()
 {
-	for (auto p : bodies)
-	{
-		delete p;
-	}
+	delete world;
 	Graphics::CloseWindow();
 }

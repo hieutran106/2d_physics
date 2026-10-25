@@ -1,16 +1,18 @@
 #pragma once
 #include "Physics/Body.h"
 #include "Physics/Contact.h"
+#include "Physics/World.h"
 
 #include <SDL3/SDL.h>
 #include <vector>
 
 class Application
 {
-	bool               debug = false;
-	bool               mRunning = false;
-	std::vector<Body*> bodies;
-	Vec2               pushForce;
+	bool   debug = false;
+	bool   mRunning = false;
+	World* world;
+	// std::vector<Body*> bodies;
+	// Vec2               pushForce;
 
 	// Mouse for impulse
 	Vec2 mouseCursor = Vec2(0, 0);

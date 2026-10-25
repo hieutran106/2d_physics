@@ -15,6 +15,7 @@ struct Shape
 	virtual ShapeType GetType() const = 0;
 	virtual float     GetMomentOfInertia() const = 0;
 	virtual Shape*    Clone() const = 0;
+	virtual void      UpdateVertices(float angle, const Vec2& position) = 0;
 };
 
 struct CircleShape : public Shape
@@ -25,6 +26,7 @@ struct CircleShape : public Shape
 	ShapeType GetType() const override;
 	float     GetMomentOfInertia() const override;
 	Shape*    Clone() const override;
+	void      UpdateVertices(float angle, const Vec2& position) override;
 };
 
 struct PolygonShape : public Shape
@@ -55,7 +57,7 @@ struct PolygonShape : public Shape
 	float  FindMinSeparation(const PolygonShape& other, Vec2& axis, Vec2& point) const;
 	Shape* Clone() const override;
 	// Function to transform the polygon vertices from "local space" to "world space"
-	void UpdateVertices(float rotation, const Vec2& position);
+	void UpdateVertices(float rotation, const Vec2& position) override;
 };
 
 struct BoxShape : public PolygonShape

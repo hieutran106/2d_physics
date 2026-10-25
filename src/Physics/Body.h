@@ -45,6 +45,7 @@ struct Body
 	void SetTexture(const char* textureFileName);
 
 	bool IsStatic() const;
+	// Integrate linear + angular and populate world vertices cache
 	void Update(float dt);
 
 	void IntegrateLinear(float dt);

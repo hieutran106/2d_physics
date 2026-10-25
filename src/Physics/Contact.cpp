@@ -13,6 +13,9 @@ void Contact::ResolvePenetration()
 
 	a->position -= normal * da;
 	b->position += normal * db;
+
+	a->shape->UpdateVertices(a->rotation, a->position);
+	b->shape->UpdateVertices(b->rotation, b->position);
 }
 
 void Contact::ResolveCollision()

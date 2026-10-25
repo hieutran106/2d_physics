@@ -12,10 +12,7 @@ Body::Body(const Shape& shape, float x, float y, float m)
 {
 	this->shape = shape.Clone();
 	// populate the worldVertices cache once at creation so it's valid before the first Update
-	if (auto* poly = dynamic_cast<PolygonShape*>(this->shape))
-	{
-		poly->UpdateVertices(rotation, position);
-	}
+	this->shape->UpdateVertices(rotation, position);
 	if (mass != 0)
 	{
 		invMass = 1 / mass;
@@ -39,6 +36,7 @@ Body::Body(const Shape& shape, float x, float y, float m)
 Body::~Body()
 {
 	delete shape;
+	SDL_DestroyTexture(texture);
 }
 
 void Body::SetTexture(const char* textureFileName)
@@ -60,13 +58,7 @@ void Body::Update(float deltaTime)
 	IntegrateLinear(deltaTime);
 	IntegrateAngular(deltaTime);
 	// Populate worldVertices cache
-	auto shapeType = shape->GetType();
-	bool isPolygon = shapeType == POLYGON || shapeType == BOX;
-	if (isPolygon)
-	{
-		PolygonShape* polygonShape = static_cast<PolygonShape*>(shape);
-		polygonShape->UpdateVertices(rotation, position);
-	}
+	shape->UpdateVertices(rotation, position);
 }
 
 void Body::IntegrateLinear(float dt)
