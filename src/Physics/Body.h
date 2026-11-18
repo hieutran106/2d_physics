@@ -24,6 +24,7 @@ struct Body
 	float mass;
 	float invMass;
 	float I;
+	// Inverse of moment of inertia
 	float invI;
 
 	// Coefficient of restitution
@@ -47,6 +48,9 @@ struct Body
 	bool IsStatic() const;
 	// Integrate linear + angular and populate world vertices cache
 	void Update(float dt);
+
+	Vec2 LocalSpaceToWorldSpace(const Vec2& point) const;
+	Vec2 WorldSpaceToLocalSpace(const Vec2& point) const;
 
 	void IntegrateLinear(float dt);
 	void IntegrateAngular(float dt);

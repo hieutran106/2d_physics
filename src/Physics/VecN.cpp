@@ -4,7 +4,8 @@
 VecN::VecN(int N)
 	: N(N)
 {
-	data = new float[N];
+	// new float[N]() value-initializes the array. For built-in types, that zero-initializes every element to 0.0f.
+	data = new float[N]();
 }
 
 VecN::VecN(const VecN& v)

@@ -61,6 +61,18 @@ void Body::Update(float deltaTime)
 	shape->UpdateVertices(rotation, position);
 }
 
+Vec2 Body::LocalSpaceToWorldSpace(const Vec2& point) const
+{
+	Vec2 rotated = point.Rotate(rotation);
+	return rotated + position;
+}
+
+Vec2 Body::WorldSpaceToLocalSpace(const Vec2& point) const
+{
+	Vec2 translated = point - position;
+	return translated.Rotate(-rotation);
+}
+
 void Body::IntegrateLinear(float dt)
 {
 	if (IsStatic())
