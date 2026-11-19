@@ -26,6 +26,16 @@ std::vector<Body*>& World::GetBodies()
 	return bodies;
 }
 
+void World::AddContraint(Constraint* constraint)
+{
+	constraints.push_back(constraint);
+}
+
+std::vector<Constraint*>& World::GetConstraints()
+{
+	return constraints;
+}
+
 void World::AddForce(const Vec2& force)
 {
 	forces.push_back(force);

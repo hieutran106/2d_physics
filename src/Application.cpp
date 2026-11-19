@@ -43,11 +43,24 @@ void Setup_Cirlce(std::vector<Body*> bodies)
 	Body* circleA = new Body(CircleShape(100), 800, 800, 1.0);
 	Body* circleB = new Body(CircleShape(100), 800, 800, 1.0);
 }
+
+void Setup_Constraint(World* world)
+{
+	Body* a = new Body(CircleShape(50), Graphics::Width() / 2, Graphics::Height() / 2, 0);
+	Body* b = new Body(CircleShape(30), a->position.x - 200, a->position.y / 2, 1.0);
+
+	world->AddBody(a);
+	world->AddBody(b);
+	JointConstraint* joint = new JointConstraint(a, b, a->position);
+
+	world->AddContraint(joint);
+}
 void Application::Setup()
 {
 	mRunning = Graphics::InitializeWindow("2d physics", 960, 720);
 	world = new World(-9.8);
-	Setup_TwoBox(world);
+	// Setup_TwoBox(world);
+	Setup_Constraint(world);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
