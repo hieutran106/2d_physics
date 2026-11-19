@@ -46,14 +46,15 @@ struct Body
 	void SetTexture(const char* textureFileName);
 
 	bool IsStatic() const;
-	// Integrate linear + angular and populate world vertices cache
-	void Update(float dt);
+
+	void IntegrateForces(float dt);
+	void IntegrateVelocities(float dt);
 
 	Vec2 LocalSpaceToWorldSpace(const Vec2& point) const;
 	Vec2 WorldSpaceToLocalSpace(const Vec2& point) const;
 
-	void IntegrateLinear(float dt);
-	void IntegrateAngular(float dt);
+	// void IntegrateLinear(float dt);
+	// void IntegrateAngular(float dt);
 	void AddForce(const Vec2& force);
 	void ClearForces();
 

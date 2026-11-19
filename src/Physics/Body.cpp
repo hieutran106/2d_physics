@@ -53,10 +53,41 @@ bool Body::IsStatic() const
 	const float epsilon = 0.005f;
 	return std::fabs(invMass - 0.0) < epsilon;
 }
-void Body::Update(float deltaTime)
+
+void Body::IntegrateForces(float dt)
 {
-	IntegrateLinear(deltaTime);
-	IntegrateAngular(deltaTime);
+	if (IsStatic())
+	{
+		return;
+	}
+	// The acceleration is calculated from the net-force divided by the mass
+	acceleration = sumForces * invMass;
+	// Integrate the acceleration to find the new velocity for the next step
+	velocity += acceleration * dt;
+	ClearForces();
+	// The angular part
+	angularAcceleration = sumTorque * invI;
+	angularVelocity += angularAcceleration * dt;
+	ClearTorque();
+}
+void Body::IntegrateVelocities(float dt)
+{
+	if (IsStatic())
+	{
+		return;
+	}
+	// Integrate the linear velocity to find the new position
+	position += velocity * dt;
+	// Integrate the angular velocity to find the new rotation angle
+	rotation += angularVelocity * dt;
+
+	// Physics::LogDebug(
+	// 	"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
+
+	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity,
+	// rotation);
+
+	// Update the vertices to adjust them to the new position/rotation
 	// Populate worldVertices cache
 	shape->UpdateVertices(rotation, position);
 }
@@ -73,42 +104,42 @@ Vec2 Body::WorldSpaceToLocalSpace(const Vec2& point) const
 	return translated.Rotate(-rotation);
 }
 
-void Body::IntegrateLinear(float dt)
-{
-	if (IsStatic())
-	{
-		return;
-	}
-	// The acceleration is calculated from the net-force divided by the mass
-	acceleration = sumForces * invMass;
-	// Integrate the acceleration to find the new velocity for the next step
-	velocity += acceleration * dt;
-	// Prevent moving slightly due to friction
-	if (velocity.MagnitudeSquared() < 5)
-	{
-		velocity.x = 0.0;
-		velocity.y = 0.0;
-	}
-	// Integrate the velocity to find the new position for the next step
-	position += velocity * dt;
-	// Physics::LogDebug(
-	// 	"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
-	ClearForces();
-}
-void Body::IntegrateAngular(float dt)
-{
-	if (IsStatic())
-	{
-		return;
-	}
-
-	angularAcceleration = sumTorque * invI;
-	angularVelocity += angularAcceleration * dt;
-	rotation += angularVelocity * dt;
-	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity,
-	// rotation);
-	ClearTorque();
-}
+// void Body::IntegrateLinear(float dt)
+// {
+// 	if (IsStatic())
+// 	{
+// 		return;
+// 	}
+// 	// The acceleration is calculated from the net-force divided by the mass
+// 	acceleration = sumForces * invMass;
+// 	// Integrate the acceleration to find the new velocity for the next step
+// 	velocity += acceleration * dt;
+// 	// Prevent moving slightly due to friction
+// 	if (velocity.MagnitudeSquared() < 5)
+// 	{
+// 		velocity.x = 0.0;
+// 		velocity.y = 0.0;
+// 	}
+// 	// Integrate the velocity to find the new position for the next step
+// 	position += velocity * dt;
+// 	// Physics::LogDebug(
+// 	// 	"Body::IntegrateLinear - sumForce={} acc={} vel={} pos={}", sumForces, acceleration, velocity, position);
+// 	ClearForces();
+// }
+// void Body::IntegrateAngular(float dt)
+// {
+// 	if (IsStatic())
+// 	{
+// 		return;
+// 	}
+//
+// 	angularAcceleration = sumTorque * invI;
+// 	angularVelocity += angularAcceleration * dt;
+// 	rotation += angularVelocity * dt;
+// 	// SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Body angularVelocity=%.4f, rotation=%.4f", angularVelocity,
+// 	// rotation);
+// 	ClearTorque();
+// }
 void Body::AddForce(const Vec2& force)
 {
 	sumForces += force;

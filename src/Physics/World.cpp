@@ -66,9 +66,22 @@ void World::Update(float dt)
 		}
 	}
 
+	// 1. Integrate all the forces
 	for (Body* body : bodies)
 	{
-		body->Update(dt);
+		body->IntegrateForces(dt);
+	}
+
+	// 2. Solve all constraints
+	for (Constraint* c : constraints)
+	{
+		c->Solve(dt);
+	}
+
+	// 3. Integrate all the velocities
+	for (Body* body : bodies)
+	{
+		body->IntegrateVelocities(dt);
 	}
 
 	CheckCollisions();
